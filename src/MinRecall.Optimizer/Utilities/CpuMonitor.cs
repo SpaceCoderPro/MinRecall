@@ -48,14 +48,14 @@ public static class CpuMonitor
         try
         {
             var startTime = DateTime.UtcNow;
-            var startCpuTicks = Process.GetProcesses().Sum(p => GetProcessCpuTime(p).Ticks);
+            var startCpu = Process.GetProcesses().Sum(p => GetProcessCpuTime(p));
 
             Thread.Sleep(100);
 
             var endTime = DateTime.UtcNow;
-            var endCpuTicks = Process.GetProcesses().Sum(p => GetProcessCpuTime(p).Ticks);
+            var endCpu = Process.GetProcesses().Sum(p => GetProcessCpuTime(p));
 
-            var elapsedCpu = TimeSpan.FromTicks(endCpuTicks - startCpuTicks).TotalMilliseconds;
+            var elapsedCpu = (endCpu - startCpu).TotalMilliseconds;
             var elapsedTotal = (endTime - startTime).TotalMilliseconds * Environment.ProcessorCount;
 
             return (float)Math.Min(100, (elapsedCpu / elapsedTotal) * 100);

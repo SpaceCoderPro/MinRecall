@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Hosting.WindowsServices;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.EventLog;
 
@@ -34,7 +33,7 @@ public class Program
 
         if (isService)
         {
-            await hostBuilder.UseWindowsService().Build().RunAsync();
+            await hostBuilder.RunAsServiceAsync();
         }
         else
         {
