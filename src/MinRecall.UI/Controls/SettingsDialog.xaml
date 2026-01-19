@@ -1,0 +1,154 @@
+<ContentDialog
+    x:Class="MinRecall.UI.Controls.SettingsDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:MinRecall.UI.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Title="Settings"
+    PrimaryButtonText="Save"
+    CloseButtonText="Cancel"
+    DefaultButton="Primary"
+    Style="{StaticResource DefaultContentDialogStyle}">
+
+    <ScrollViewer MaxHeight="600">
+        <StackPanel Spacing="16" Width="600">
+
+            <!-- Capture Settings -->
+            <TextBlock Text="Capture"
+                       Style="{ThemeResource SubtitleTextBlockStyle}"
+                       Margin="0,8,0,8"/>
+
+            <NumberBox x:Name="CaptureIntervalBox"
+                       Header="Capture Interval (seconds)"
+                       Value="60"
+                       Minimum="30"
+                       Maximum="300"
+                       SpinButtonPlacementMode="Compact"/>
+
+            <ComboBox x:Name="QualityProfileBox"
+                      Header="Quality Profile"
+                      SelectionChanged="QualityProfileBox_SelectionChanged">
+                <ComboBoxItem Tag="Storage">Storage Optimized</ComboBoxItem>
+                <ComboBoxItem Tag="Balanced" IsSelected="True">Balanced</ComboBoxItem>
+                <ComboBoxItem Tag="Quality">Quality</ComboBoxItem>
+            </ComboBox>
+
+            <ToggleSwitch x:Name="AdaptiveQualityToggle"
+                          Header="Adaptive Quality"
+                          IsOn="True"
+                          ToolTipService.ToolTip="Adjust quality based on CPU usage"/>
+
+            <NumberBox x:Name="KeyframeFrequencyBox"
+                       Header="Keyframe Frequency (every N screenshots)"
+                       Value="25"
+                       Minimum="10"
+                       Maximum="50"
+                       SpinButtonPlacementMode="Compact"/>
+
+            <!-- Optimization Settings -->
+            <TextBlock Text="Optimization"
+                       Style="{ThemeResource SubtitleTextBlockStyle}"
+                       Margin="0,16,0,8"/>
+
+            <NumberBox x:Name="CpuThresholdBox"
+                       Header="CPU Threshold for Optimization (%)"
+                       Value="15"
+                       Minimum="5"
+                       Maximum="30"
+                       SmallChange="1"
+                       SpinButtonPlacementMode="Compact"/>
+
+            <ToggleSwitch x:Name="BackgroundOcrToggle"
+                          Header="Background OCR"
+                          IsOn="True"/>
+
+            <ToggleSwitch x:Name="AutoCleanupToggle"
+                          Header="Auto-Cleanup Old Screenshots"
+                          IsOn="True"/>
+
+            <NumberBox x:Name="RetentionMonthsBox"
+                       Header="Retention Period (months)"
+                       Value="12"
+                       Minimum="1"
+                       Maximum="24"
+                       SpinButtonPlacementMode="Compact"/>
+
+            <!-- Privacy Settings -->
+            <TextBlock Text="Privacy"
+                       Style="{ThemeResource SubtitleTextBlockStyle}"
+                       Margin="0,16,0,8"/>
+
+            <ToggleSwitch x:Name="BlurSensitiveToggle"
+                          Header="Blur Sensitive Data"
+                          IsOn="False"
+                          ToolTipService.ToolTip="Blur emails, phone numbers, passwords"/>
+
+            <TextBox x:Name="PrivacyBlacklistBox"
+                     Header="Privacy Blacklist"
+                     PlaceholderText="Enter app names to exclude (one per line)"
+                     AcceptsReturn="True"
+                     TextWrapping="Wrap"
+                     Height="80"/>
+
+            <!-- Storage Settings -->
+            <TextBlock Text="Storage"
+                       Style="{ThemeResource SubtitleTextBlockStyle}"
+                       Margin="0,16,0,8"/>
+
+            <Button x:Name="BrowseLocationButton"
+                    Content="Change Storage Location"
+                    Click="BrowseLocationButton_Click"
+                    HorizontalAlignment="Stretch"/>
+
+            <TextBlock x:Name="StorageLocationText"
+                       Text=""
+                       Style="{ThemeResource CaptionTextBlockStyle}"
+                       TextWrapping="Wrap"
+                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+
+            <!-- Startup Settings -->
+            <TextBlock Text="Startup"
+                       Style="{ThemeResource SubtitleTextBlockStyle}"
+                       Margin="0,16,0,8"/>
+
+            <ToggleSwitch x:Name="AutoStartToggle"
+                          Header="Start with Windows"
+                          IsOn="True"/>
+
+            <!-- OCR Settings -->
+            <TextBlock Text="OCR"
+                       Style="{ThemeResource SubtitleTextBlockStyle}"
+                       Margin="0,16,0,8"/>
+
+            <TextBox x:Name="OcrLanguagesBox"
+                     Header="OCR Languages"
+                     PlaceholderText="en-US, es-ES, etc. (comma-separated)"
+                     Text="en-US"/>
+
+            <!-- Timeline Settings -->
+            <TextBlock Text="Timeline"
+                       Style="{ThemeResource SubtitleTextBlockStyle}"
+                       Margin="0,16,0,8"/>
+
+            <ComboBox x:Name="TimelineViewBox">
+                <ComboBoxItem Tag="Hourly" IsSelected="True">Hourly</ComboBoxItem>
+                <ComboBoxItem Tag="Daily">Daily</ComboBoxItem>
+                <ComboBoxItem Tag="Weekly">Weekly</ComboBoxItem>
+            </ComboBox>
+
+            <!-- Export Settings -->
+            <TextBlock Text="Export"
+                       Style="{ThemeResource SubtitleTextBlockStyle}"
+                       Margin="0,16,0,8"/>
+
+            <ComboBox x:Name="ExportFormatBox">
+                <ComboBoxItem Tag="PNG" IsSelected="True">PNG</ComboBoxItem>
+                <ComboBoxItem Tag="JPEG">JPEG</ComboBoxItem>
+                <ComboBoxItem Tag="WebP">WebP</ComboBoxItem>
+            </ComboBox>
+
+        </StackPanel>
+    </ScrollViewer>
+</ContentDialog>

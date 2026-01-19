@@ -1,0 +1,62 @@
+name: Build MinRecall
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  release:
+    types: [ published ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build
+      run: dotnet build --configuration Release --no-restore
+
+    - name: Test
+      run: dotnet test --no-build --verbosity normal
+
+    - name: Publish CaptureService
+      run: dotnet publish src/MinRecall.CaptureService/MinRecall.CaptureService.csproj -c Release -r win-x64 --self-contained -o artifacts/CaptureService
+
+    - name: Publish Optimizer
+      run: dotnet publish src/MinRecall.Optimizer/MinRecall.Optimizer.csproj -c Release -r win-x64 --self-contained -o artifacts/Optimizer
+
+    - name: Publish UI
+      run: dotnet publish src/MinRecall.UI/MinRecall.UI.csproj -c Release -r win-x64 --self-contained /p:GenerateAppxPackageOnBuild=true /p:AppxPackageSigningEnabled=false -o artifacts/UI
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: MinRecall-Windows-x64
+        path: artifacts/
+        retention-days: 30
+
+    - name: Create Release Asset
+      if: github.event_name == 'release'
+      run: |
+        Compress-Archive -Path artifacts/UI/*.msix -DestinationPath MinRecall-UI-${{ github.event.release.tag_name }}.zip
+
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      if: github.event_name == 'release'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: ./MinRecall-UI-${{ github.event.release.tag_name }}.zip
+        asset_name: MinRecall-UI-${{ github.event.release.tag_name }}.zip
+        asset_content_type: application/zip
