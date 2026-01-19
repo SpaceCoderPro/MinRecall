@@ -15,6 +15,7 @@ public class CaptureWorker : BackgroundService
     private readonly DatabaseManager _database;
     private readonly SettingsManager _settings;
     private DateTime? _lastWindowChangeTime;
+    private DateTime? _lastCaptureTime;
     private string _lastProcessName = string.Empty;
     private string _lastWindowTitle = string.Empty;
     private int _screenshotsSinceKeyframe = 0;
@@ -113,8 +114,7 @@ public class CaptureWorker : BackgroundService
                 _lastWindowChangeTime = DateTime.UtcNow;
             }
 
-            // Determine if this should be a keyframe
-            var shouldCapture = ShouldCaptureScreenshot();
+            var shouldCapture = ShouldCaptureScreenshot(windowChanged);
             if (!shouldCapture)
             {
                 return;
@@ -154,6 +154,7 @@ public class CaptureWorker : BackgroundService
             var screenshot = SaveScreenshot(bitmap, windowInfo, isKeyframe);
             if (screenshot != null)
             {
+                _lastCaptureTime = screenshot.Timestamp;
                 UpdateActivityLog(screenshot);
             }
 
@@ -207,28 +208,21 @@ public class CaptureWorker : BackgroundService
         }
     }
 
-    private bool ShouldCaptureScreenshot()
+    private bool ShouldCaptureScreenshot(bool windowChanged)
     {
-        // Always capture if it's been a while or window changed
-        if (_lastWindowChangeTime == null)
+        if (_lastCaptureTime == null)
         {
             return true;
         }
 
-        // Capture at minimum interval (30 seconds) even if window hasn't changed
-        var timeSinceChange = DateTime.UtcNow - _lastWindowChangeTime.Value;
-        if (timeSinceChange.TotalSeconds >= _settings.Settings.CaptureIntervalSeconds)
+        var timeSinceLastCapture = DateTime.UtcNow - _lastCaptureTime.Value;
+
+        if (timeSinceLastCapture.TotalSeconds >= _settings.Settings.CaptureIntervalSeconds)
         {
             return true;
         }
 
-        // Capture on window change (but with minimum 10 second delay to avoid spam)
-        if (_lastProcessName != _lastProcessName || _lastWindowTitle != _lastWindowTitle)
-        {
-            return true;
-        }
-
-        return false;
+        return windowChanged && timeSinceLastCapture.TotalSeconds >= 10;
     }
 
     private void UpdateActivityLog(Screenshot? screenshot)
