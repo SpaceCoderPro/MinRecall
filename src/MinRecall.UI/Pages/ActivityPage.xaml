@@ -67,14 +67,17 @@
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
 
-                                <Grid Grid.Column="0" Width="48" Height="48"
-                                      Background="{ThemeResource SystemChromeMediumLowAcrylicElementMediumBrush}"
-                                      CornerRadius="8">
+                                <Border Grid.Column="0" Width="48" Height="48"
+                                        Background="{ThemeResource SystemChromeMediumLowAcrylicElementMediumBrush}"
+                                        CornerRadius="8">
+                                    <Border.Clip>
+                                        <RectangleGeometry Rect="0,0,48,48" RadiusX="8" RadiusY="8" />
+                                    </Border.Clip>
                                     <TextBlock Text="{Binding FirstLetter}"
                                                HorizontalAlignment="Center"
                                                VerticalAlignment="Center"
                                                Style="{ThemeResource TitleTextBlockStyle}"/>
-                                </Grid>
+                                </Border>
 
                                 <StackPanel Grid.Column="1" Margin="16,0,0,0" VerticalAlignment="Center">
                                     <TextBlock Text="{Binding ProcessName}"

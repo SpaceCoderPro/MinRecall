@@ -45,10 +45,26 @@
                         Loaded="NavView_Loaded"
                         Canvas.ZIndex="0">
             <NavigationView.MenuItems>
-                <NavigationViewItem Icon="Clock" Content="Timeline" Tag="timeline"/>
-                <NavigationViewItem Icon="Globe" Content="Search" Tag="search"/>
-                <NavigationViewItem Icon="View" Content="Activity Heatmap" Tag="heatmap"/>
-                <NavigationViewItem Icon="List" Content="Activity Log" Tag="activity"/>
+                <NavigationViewItem Content="Timeline" Tag="timeline">
+                    <NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="Clock" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem Content="Search" Tag="search">
+                    <NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="Globe" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem Content="Activity Heatmap" Tag="heatmap">
+                    <NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="View" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem Content="Activity Log" Tag="activity">
+                    <NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="List" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
             </NavigationView.MenuItems>
 
             <Frame x:Name="ContentFrame"/>
