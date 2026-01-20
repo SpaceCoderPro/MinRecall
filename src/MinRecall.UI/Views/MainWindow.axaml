@@ -72,32 +72,32 @@
             <Border Grid.Column="0" Background="#1a1a1a" BorderBrush="#2a2a2a" BorderThickness="0,0,1,0">
                 <StackPanel Margin="0,20">
                     <StackPanel x:Name="NavTimeline" Classes="nav-item active" Margin="20,8" 
-                               Tapped="NavItem_Tapped" Tag="timeline">
-                        <StackPanel Orientation="Horizontal" Padding="16,12">
+                               PointerPressed="NavItem_PointerPressed" Tag="timeline">
+                        <StackPanel Orientation="Horizontal" Margin="16,12">
                             <TextBlock Text="📅" FontSize="20" Margin="0,0,12,0"/>
                             <TextBlock Text="Timeline" Foreground="#ffffff" FontSize="14" FontWeight="Medium" VerticalAlignment="Center"/>
                         </StackPanel>
                     </StackPanel>
                     
                     <StackPanel x:Name="NavSearch" Classes="nav-item" Margin="20,4" 
-                               Tapped="NavItem_Tapped" Tag="search">
-                        <StackPanel Orientation="Horizontal" Padding="16,12">
+                               PointerPressed="NavItem_PointerPressed" Tag="search">
+                        <StackPanel Orientation="Horizontal" Margin="16,12">
                             <TextBlock Text="🔍" FontSize="20" Margin="0,0,12,0"/>
                             <TextBlock Text="Search" Foreground="#888888" FontSize="14" FontWeight="Medium" VerticalAlignment="Center"/>
                         </StackPanel>
                     </StackPanel>
                     
                     <StackPanel x:Name="NavHeatmap" Classes="nav-item" Margin="20,4" 
-                               Tapped="NavItem_Tapped" Tag="heatmap">
-                        <StackPanel Orientation="Horizontal" Padding="16,12">
+                               PointerPressed="NavItem_PointerPressed" Tag="heatmap">
+                        <StackPanel Orientation="Horizontal" Margin="16,12">
                             <TextBlock Text="📊" FontSize="20" Margin="0,0,12,0"/>
                             <TextBlock Text="Activity Heatmap" Foreground="#888888" FontSize="14" FontWeight="Medium" VerticalAlignment="Center"/>
                         </StackPanel>
                     </StackPanel>
                     
                     <StackPanel x:Name="NavActivity" Classes="nav-item" Margin="20,4" 
-                               Tapped="NavItem_Tapped" Tag="activity">
-                        <StackPanel Orientation="Horizontal" Padding="16,12">
+                               PointerPressed="NavItem_PointerPressed" Tag="activity">
+                        <StackPanel Orientation="Horizontal" Margin="16,12">
                             <TextBlock Text="📝" FontSize="20" Margin="0,0,12,0"/>
                             <TextBlock Text="Activity Log" Foreground="#888888" FontSize="14" FontWeight="Medium" VerticalAlignment="Center"/>
                         </StackPanel>
@@ -106,8 +106,8 @@
                     <Separator Background="#2a2a2a" Margin="20,20" Height="1"/>
                     
                     <StackPanel x:Name="NavSettings" Classes="nav-item" Margin="20,4" 
-                               Tapped="NavItem_Tapped" Tag="settings">
-                        <StackPanel Orientation="Horizontal" Padding="16,12">
+                               PointerPressed="NavItem_PointerPressed" Tag="settings">
+                        <StackPanel Orientation="Horizontal" Margin="16,12">
                             <TextBlock Text="⚙️" FontSize="20" Margin="0,0,12,0"/>
                             <TextBlock Text="Settings" Foreground="#888888" FontSize="14" FontWeight="Medium" VerticalAlignment="Center"/>
                         </StackPanel>
@@ -157,7 +157,6 @@
         
         <Style Selector="StackPanel.nav-item">
             <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="CornerRadius" Value="8"/>
             <Setter Property="Transitions">
                 <Setter.Value>
                     <Transitions>
