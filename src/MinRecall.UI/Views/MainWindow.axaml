@@ -1,0 +1,183 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="MinRecall.UI.Views.MainWindow"
+        Icon="/Assets/Images/icon.ico"
+        Title="MinRecall - AI-Powered Screenshot Recall"
+        Background="#0f0f0f"
+        Foreground="#ffffff"
+        WindowStartupLocation="CenterScreen"
+        MinWidth="1200"
+        MinHeight="800">
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="60"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Modern Header Bar -->
+        <Border Grid.Row="0" Background="#1a1a1a" BorderBrush="#2a2a2a" BorderThickness="0,0,0,1">
+            <Grid Margin="20,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <!-- Logo and Title -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="🔍" FontSize="24" Margin="0,0,12,0"/>
+                    <TextBlock Text="MinRecall" FontSize="18" FontWeight="Bold" Foreground="#ffffff" VerticalAlignment="Center"/>
+                </StackPanel>
+                
+                <!-- Search Bar -->
+                <Border Grid.Column="1" Background="#2a2a2a" CornerRadius="12" Margin="40,12" Padding="16,8" 
+                         BorderBrush="#3a3a3a" BorderThickness="1">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <TextBlock Text="🔍" Foreground="#888888" FontSize="16" 
+                                  VerticalAlignment="Center" Grid.Column="0" Margin="0,0,8,0"/>
+                        <TextBox Grid.Column="1" Background="Transparent" BorderThickness="0" 
+                                Foreground="#ffffff" Watermark="Search screenshots, apps, or text..." 
+                                FontSize="14"/>
+                        <Border Grid.Column="2" Width="24" Height="24" CornerRadius="12" 
+                               Background="#00d9ff" Margin="8,0,0,0">
+                            <TextBlock Text="⌘" Foreground="#0f0f0f" FontSize="10" FontWeight="Bold" 
+                                      HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </Grid>
+                </Border>
+                
+                <!-- Settings Button -->
+                <Button Grid.Column="2" Background="Transparent" BorderThickness="0" Padding="12,8" 
+                        CornerRadius="8" Classes="icon-button">
+                    <TextBlock Text="⚙️" FontSize="20"/>
+                </Button>
+            </Grid>
+        </Border>
+        
+        <!-- Main Content Area -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="280"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            
+            <!-- Modern Sidebar Navigation -->
+            <Border Grid.Column="0" Background="#1a1a1a" BorderBrush="#2a2a2a" BorderThickness="0,0,1,0">
+                <StackPanel Margin="0,20">
+                    <StackPanel x:Name="NavTimeline" Classes="nav-item active" Margin="20,8" 
+                               Tapped="NavItem_Tapped" Tag="timeline">
+                        <StackPanel Orientation="Horizontal" Padding="16,12">
+                            <TextBlock Text="📅" FontSize="20" Margin="0,0,12,0"/>
+                            <TextBlock Text="Timeline" Foreground="#ffffff" FontSize="14" FontWeight="Medium" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </StackPanel>
+                    
+                    <StackPanel x:Name="NavSearch" Classes="nav-item" Margin="20,4" 
+                               Tapped="NavItem_Tapped" Tag="search">
+                        <StackPanel Orientation="Horizontal" Padding="16,12">
+                            <TextBlock Text="🔍" FontSize="20" Margin="0,0,12,0"/>
+                            <TextBlock Text="Search" Foreground="#888888" FontSize="14" FontWeight="Medium" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </StackPanel>
+                    
+                    <StackPanel x:Name="NavHeatmap" Classes="nav-item" Margin="20,4" 
+                               Tapped="NavItem_Tapped" Tag="heatmap">
+                        <StackPanel Orientation="Horizontal" Padding="16,12">
+                            <TextBlock Text="📊" FontSize="20" Margin="0,0,12,0"/>
+                            <TextBlock Text="Activity Heatmap" Foreground="#888888" FontSize="14" FontWeight="Medium" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </StackPanel>
+                    
+                    <StackPanel x:Name="NavActivity" Classes="nav-item" Margin="20,4" 
+                               Tapped="NavItem_Tapped" Tag="activity">
+                        <StackPanel Orientation="Horizontal" Padding="16,12">
+                            <TextBlock Text="📝" FontSize="20" Margin="0,0,12,0"/>
+                            <TextBlock Text="Activity Log" Foreground="#888888" FontSize="14" FontWeight="Medium" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </StackPanel>
+                    
+                    <Separator Background="#2a2a2a" Margin="20,20" Height="1"/>
+                    
+                    <StackPanel x:Name="NavSettings" Classes="nav-item" Margin="20,4" 
+                               Tapped="NavItem_Tapped" Tag="settings">
+                        <StackPanel Orientation="Horizontal" Padding="16,12">
+                            <TextBlock Text="⚙️" FontSize="20" Margin="0,0,12,0"/>
+                            <TextBlock Text="Settings" Foreground="#888888" FontSize="14" FontWeight="Medium" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+            
+            <!-- Content Frame -->
+            <Border Grid.Column="1" Background="#0f0f0f" Padding="32,24">
+                <StackPanel>
+                    <TextBlock Text="Timeline" FontSize="28" FontWeight="Bold" Foreground="#ffffff" 
+                               Margin="0,0,0,8"/>
+                    <TextBlock Text="Browse your screenshot history in chronological order" 
+                               FontSize="14" Foreground="#888888" Margin="0,0,0,24"/>
+                    
+                    <!-- Sample Content -->
+                    <Border Background="#1a1a1a" CornerRadius="16" Padding="20" 
+                            BorderBrush="#2a2a2a" BorderThickness="1">
+                        <StackPanel>
+                            <TextBlock Text="Welcome to MinRecall!" FontSize="18" FontWeight="Bold" 
+                                       Foreground="#ffffff" Margin="0,0,0,8"/>
+                            <TextBlock Text="Your AI-powered screenshot recall system is ready." 
+                                       Foreground="#888888"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Grid>
+    
+    <Window.Styles>
+        <Style Selector="Button.icon-button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Transitions">
+                <Setter.Value>
+                    <Transitions>
+                        <BrushTransition Property="Background" Duration="0:0:0.2"/>
+                    </Transitions>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style Selector="Button.icon-button:pointerover">
+            <Setter Property="Background" Value="#2a2a2a"/>
+        </Style>
+        
+        <Style Selector="StackPanel.nav-item">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Transitions">
+                <Setter.Value>
+                    <Transitions>
+                        <BrushTransition Property="Background" Duration="0:0:0.2"/>
+                    </Transitions>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style Selector="StackPanel.nav-item:pointerover">
+            <Setter Property="Background" Value="#2a2a2a"/>
+        </Style>
+        <Style Selector="StackPanel.nav-item.active">
+            <Setter Property="Background" Value="#00d9ff"/>
+        </Style>
+        <Style Selector="StackPanel.nav-item.active /template/ StackPanel">
+            <Setter Property="Background" Value="Transparent"/>
+        </Style>
+        <Style Selector="StackPanel.nav-item.active TextBlock">
+            <Setter Property="Foreground" Value="#0f0f0f"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+    </Window.Styles>
+</Window>

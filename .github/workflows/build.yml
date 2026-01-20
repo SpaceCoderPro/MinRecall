@@ -2,7 +2,7 @@ name: Build MinRecall
 
 on:
   push:
-    branches: [ main, develop, fix/gha-windows-build-optimizer-winui-python-paths ]
+    branches: [ main, develop, feat-avalonia-migrate-winui3-modern-ui-gh-actions ]
   pull_request:
     branches: [ main ]
   release:
@@ -38,7 +38,7 @@ jobs:
     - name: Clean UI project
       run: dotnet clean src/MinRecall.UI/MinRecall.UI.csproj
 
-    - name: Restore dependencies (again for UI)
+    - name: Restore dependencies (UI)
       run: dotnet restore src/MinRecall.UI/MinRecall.UI.csproj
 
     - name: Build Core
@@ -50,10 +50,8 @@ jobs:
     - name: Build Optimizer
       run: dotnet build src/MinRecall.Optimizer/MinRecall.Optimizer.csproj --configuration Release --no-restore
 
-    - name: Build UI (skipped in CI - requires local Windows build)
-      run: |
-        Write-Host "::notice title=WinUI 3 Build Limitation::WinUI 3 UI requires local Windows build environment. XamlCompiler.exe has known limitations in GitHub Actions CI/CD due to Windows SDK dependencies. Build Core, CaptureService, and Optimizer successfully. Use local Windows machine to build UI: dotnet build src/MinRecall.UI/MinRecall.UI.csproj"
-        exit 0
+    - name: Build UI with Avalonia
+      run: dotnet build src/MinRecall.UI/MinRecall.UI.csproj --configuration Release --no-restore
 
     - name: Test
       run: dotnet test --no-build --verbosity normal
@@ -63,6 +61,9 @@ jobs:
 
     - name: Publish Optimizer
       run: dotnet publish src/MinRecall.Optimizer/MinRecall.Optimizer.csproj -c Release -r win-x64 --self-contained -o artifacts/Optimizer
+
+    - name: Publish UI
+      run: dotnet publish src/MinRecall.UI/MinRecall.UI.csproj -c Release -r win-x64 --self-contained -o artifacts/UI
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
@@ -94,3 +95,6 @@ jobs:
 
     - name: Build Optimizer
       run: dotnet build src/MinRecall.Optimizer/MinRecall.Optimizer.csproj --configuration Release --no-restore
+
+    - name: Build UI (Avalonia - Cross-platform)
+      run: dotnet build src/MinRecall.UI/MinRecall.UI.csproj --configuration Release --no-restore

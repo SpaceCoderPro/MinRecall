@@ -1,0 +1,232 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialIcons="using:Material.Icons.Avalonia"
+             xmlns:vm="using:MinRecall.UI.ViewModels"
+             xmlns:local="using:MinRecall.UI.Converters"
+             x:Class="MinRecall.UI.Views.HeatmapView"
+             x:DataType="vm:HeatmapViewModel">
+  
+  <Design.DataContext>
+    <vm:HeatmapViewModel/>
+  </Design.DataContext>
+  
+  <Grid Background="#0f0f0f">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
+    
+    <!-- Header -->
+    <StackPanel Grid.Row="0" Margin="32,24,32,20">
+      <TextBlock Text="Activity Heatmap" FontSize="28" FontWeight="Bold" Foreground="#ffffff" 
+                 Margin="0,0,0,8"/>
+      <TextBlock Text="Visualize your daily activity patterns and most used applications" 
+                 FontSize="14" Foreground="#888888"/>
+    </StackPanel>
+    
+    <!-- Controls -->
+    <Grid Grid.Row="1" Margin="32,0,32,24">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="Auto"/>
+      </Grid.ColumnDefinitions>
+      
+      <!-- Date Selector -->
+      <StackPanel Grid.Column="0" Orientation="Horizontal">
+        <Border Background="#1a1a1a" CornerRadius="12" Padding="16,8" 
+                BorderBrush="#2a2a2a" BorderThickness="1">
+          <StackPanel Orientation="Horizontal">
+            <materialIcons:MaterialIcon Kind="Calendar" Foreground="#888888" Width="16" Height="16" 
+                                     VerticalAlignment="Center" Margin="0,0,8,0"/>
+            <DatePicker SelectedDate="{Binding SelectedDate}" 
+                       Foreground="#ffffff" Background="Transparent" BorderThickness="0"/>
+          </StackPanel>
+        </Border>
+      </StackPanel>
+      
+      <!-- Stats Cards -->
+      <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="16" HorizontalAlignment="Center">
+        <Border Background="#1a1a1a" CornerRadius="16" Padding="20,16" 
+                BorderBrush="#2a2a2a" BorderThickness="1" MinWidth="140">
+          <StackPanel HorizontalAlignment="Center">
+            <TextBlock Text="{Binding TotalScreenshots, StringFormat='{}{0:N0}'}" 
+                       FontSize="20" FontWeight="Bold" Foreground="#00d9ff" 
+                       HorizontalAlignment="Center"/>
+            <TextBlock Text="Total Screenshots" FontSize="11" Foreground="#888888" 
+                       HorizontalAlignment="Center" TextWrapping="Wrap"/>
+          </StackPanel>
+        </Border>
+        
+        <Border Background="#1a1a1a" CornerRadius="16" Padding="20,16" 
+                BorderBrush="#2a2a2a" BorderThickness="1" MinWidth="140">
+          <StackPanel HorizontalAlignment="Center">
+            <TextBlock Text="{Binding MostActiveHour, StringFormat='{}{0:00}:00'}" 
+                       FontSize="20" FontWeight="Bold" Foreground="#00ff88" 
+                       HorizontalAlignment="Center"/>
+            <TextBlock Text="Most Active Hour" FontSize="11" Foreground="#888888" 
+                       HorizontalAlignment="Center" TextWrapping="Wrap"/>
+          </StackPanel>
+        </Border>
+        
+        <Border Background="#1a1a1a" CornerRadius="16" Padding="20,16" 
+                BorderBrush="#2a2a2a" BorderThickness="1" MinWidth="140">
+          <StackPanel HorizontalAlignment="Center">
+            <TextBlock Text="{Binding TopApplications.Count, StringFormat='{}{0}'}" 
+                       FontSize="20" FontWeight="Bold" Foreground="#ff6b6b" 
+                       HorizontalAlignment="Center"/>
+            <TextBlock Text="Apps Used" FontSize="11" Foreground="#888888" 
+                       HorizontalAlignment="Center" TextWrapping="Wrap"/>
+          </StackPanel>
+        </Border>
+      </StackPanel>
+      
+      <!-- View Controls -->
+      <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
+        <Button Background="#2a2a2a" BorderThickness="0" Padding="12,8" CornerRadius="8">
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <materialIcons:MaterialIcon Kind="ChartLine" Foreground="#888888" Width="16" Height="16"/>
+            <TextBlock Text="Chart" Foreground="#888888" FontSize="12"/>
+          </StackPanel>
+        </Button>
+        <Button Background="#00d9ff" BorderThickness="0" Padding="12,8" CornerRadius="8">
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <materialIcons:MaterialIcon Kind="ViewDashboard" Foreground="#0f0f0f" Width="16" Height="16"/>
+            <TextBlock Text="Heatmap" Foreground="#0f0f0f" FontSize="12" FontWeight="Medium"/>
+          </StackPanel>
+        </Button>
+      </StackPanel>
+    </Grid>
+    
+    <!-- Content -->
+    <Grid Grid.Row="2" Margin="32,0,32,32">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="2*"/>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      
+      <!-- Hourly Heatmap -->
+      <Border Grid.Column="0" Background="#1a1a1a" CornerRadius="16" Padding="24" 
+              BorderBrush="#2a2a2a" BorderThickness="1" Margin="0,0,16,0">
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          
+          <TextBlock Grid.Row="0" Text="Hourly Activity" FontSize="16" FontWeight="Bold" 
+                     Foreground="#ffffff" Margin="0,0,0,20"/>
+          
+          <ScrollViewer Grid.Row="1">
+            <ItemsControl ItemsSource="{Binding HourlyData}">
+              <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                  <StackPanel Orientation="Vertical" Spacing="8"/>
+                </ItemsPanelTemplate>
+              </ItemsControl.ItemsPanel>
+              
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <Grid>
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="60"/>
+                      <ColumnDefinition Width="*"/>
+                      <ColumnDefinition Width="40"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <TextBlock Grid.Column="0" Text="{Binding Hour, StringFormat='{}{0:00}:00'}" 
+                               FontSize="12" Foreground="#888888" VerticalAlignment="Center"/>
+                    
+                    <!-- Activity Bar -->
+                    <Border Grid.Column="1" Height="32" CornerRadius="16" 
+                            Background="#2a2a2a" Margin="8,0">
+                      <Border CornerRadius="16" 
+                              Background="{Binding Activity, Converter={x:Static local:ActivityToColorConverter.Instance}}"
+                              Width="{Binding Activity, Converter={x:Static local:ActivityToWidthConverter.Instance}}">
+                        <Border.Effect>
+                          <DropShadowEffect BlurRadius="8" Color="#00d9ff" Opacity="0.3"/>
+                        </Border.Effect>
+                      </Border>
+                    </Border>
+                    
+                    <TextBlock Grid.Column="2" Text="{Binding Activity}" 
+                               FontSize="12" Foreground="#ffffff" VerticalAlignment="Center"/>
+                  </Grid>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </ScrollViewer>
+        </Grid>
+      </Border>
+      
+      <!-- Top Applications -->
+      <Border Grid.Column="1" Background="#1a1a1a" CornerRadius="16" Padding="24" 
+              BorderBrush="#2a2a2a" BorderThickness="1">
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          
+          <TextBlock Grid.Row="0" Text="Top Applications" FontSize="16" FontWeight="Bold" 
+                     Foreground="#ffffff" Margin="0,0,0,20"/>
+          
+          <ScrollViewer Grid.Row="1">
+            <ItemsControl ItemsSource="{Binding TopApplications}">
+              <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                  <StackPanel Orientation="Vertical" Spacing="16"/>
+                </ItemsPanelTemplate>
+              </ItemsControl.ItemsPanel>
+              
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <Border Background="#2a2a2a" CornerRadius="12" Padding="16">
+                    <Grid>
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="50"/>
+                      </Grid.ColumnDefinitions>
+                      
+                      <StackPanel Grid.Column="0">
+                        <TextBlock Text="{Binding ApplicationName}" FontSize="14" 
+                                   Foreground="#ffffff" FontWeight="Medium" Margin="0,0,0,4"/>
+                        <TextBlock Text="{Binding ScreenshotCount, StringFormat='{}{0} screenshots'}" 
+                                   FontSize="12" Foreground="#888888"/>
+                      </StackPanel>
+                      
+                      <Border Grid.Column="1" Width="60" Height="60" CornerRadius="30" 
+                              Background="{Binding Color}" Margin="12,0">
+                        <Border.Effect>
+                          <DropShadowEffect BlurRadius="12" Color="{Binding Color}" Opacity="0.4"/>
+                        </Border.Effect>
+                        <TextBlock Text="{Binding Percentage, StringFormat='{}{0}%'}" 
+                                   FontSize="12" FontWeight="Bold" Foreground="#ffffff" 
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                      </Border>
+                      
+                      <ProgressBar Grid.Column="2" Value="{Binding Percentage}" 
+                                   Orientation="Vertical" Height="40" 
+                                   Foreground="{Binding Color}"/>
+                    </Grid>
+                  </Border>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </ScrollViewer>
+        </Grid>
+      </Border>
+    </Grid>
+    
+    <!-- Loading State -->
+    <Border Grid.RowSpan="3" Background="#0f0f0f80" IsVisible="{Binding IsLoading}">
+      <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+        <ProgressBar Width="200" Height="4" Foreground="#00d9ff" IsIndeterminate="True"/>
+        <TextBlock Text="Loading heatmap data..." Margin="0,16,0,0" 
+                   Foreground="#888888" HorizontalAlignment="Center"/>
+      </StackPanel>
+    </Border>
+  </Grid>
+</UserControl>
