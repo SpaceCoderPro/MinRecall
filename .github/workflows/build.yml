@@ -31,15 +31,11 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
 
-    - name: Clean solution
-      run: dotnet clean
+    - name: Clean UI project
+      run: dotnet clean src/MinRecall.UI/MinRecall.UI.csproj
 
-    - name: Remove obj and bin folders
-      run: |
-        Get-ChildItem -Path . -Include obj,bin -Recurse | Remove-Item -Force -Recurse -ErrorAction SilentlyContinue
-
-    - name: Restore dependencies (again)
-      run: dotnet restore
+    - name: Restore dependencies (again for UI)
+      run: dotnet restore src/MinRecall.UI/MinRecall.UI.csproj
 
     - name: Build Core
       run: dotnet build src/MinRecall.Core/MinRecall.Core.csproj --configuration Release --no-restore
@@ -51,7 +47,7 @@ jobs:
       run: dotnet build src/MinRecall.Optimizer/MinRecall.Optimizer.csproj --configuration Release --no-restore
 
     - name: Build UI
-      run: dotnet build src/MinRecall.UI/MinRecall.UI.csproj --configuration Release --no-restore
+      run: dotnet build src/MinRecall.UI/MinRecall.UI.csproj --configuration Release
 
     - name: Test
       run: dotnet test --no-build --verbosity normal
@@ -63,7 +59,7 @@ jobs:
       run: dotnet publish src/MinRecall.Optimizer/MinRecall.Optimizer.csproj -c Release -r win-x64 --self-contained -o artifacts/Optimizer
 
     - name: Publish UI
-      run: dotnet publish src/MinRecall.UI/MinRecall.UI.csproj -c Release -r win-x64 --self-contained /p:GenerateAppxPackageOnBuild=true /p:AppxPackageSigningEnabled=false -o artifacts/UI
+      run: dotnet publish src/MinRecall.UI/MinRecall.UI.csproj -c Release -r win-x64 --self-contained -o artifacts/UI
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
@@ -71,22 +67,6 @@ jobs:
         name: MinRecall-Windows-x64
         path: artifacts/
         retention-days: 30
-
-    - name: Create Release Asset
-      if: github.event_name == 'release'
-      run: |
-        Compress-Archive -Path artifacts/UI/*.msix -DestinationPath MinRecall-UI-${{ github.event.release.tag_name }}.zip
-
-    - name: Upload Release Asset
-      uses: actions/upload-release-asset@v1
-      if: github.event_name == 'release'
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ github.event.release.upload_url }}
-        asset_path: ./MinRecall-UI-${{ github.event.release.tag_name }}.zip
-        asset_name: MinRecall-UI-${{ github.event.release.tag_name }}.zip
-        asset_content_type: application/zip
 
   build-core-projects:
     runs-on: ubuntu-latest
