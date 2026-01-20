@@ -38,6 +38,9 @@ jobs:
       run: |
         Get-ChildItem -Path . -Include obj,bin -Recurse | Remove-Item -Force -Recurse -ErrorAction SilentlyContinue
 
+    - name: Restore dependencies (again)
+      run: dotnet restore
+
     - name: Build Core
       run: dotnet build src/MinRecall.Core/MinRecall.Core.csproj --configuration Release --no-restore
 
