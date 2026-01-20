@@ -2,14 +2,14 @@ name: Build MinRecall
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main, develop, fix/gha-windows-build-optimizer-winui-python-paths ]
   pull_request:
     branches: [ main ]
   release:
     types: [ published ]
 
 jobs:
-  build:
+  build-windows:
     runs-on: windows-latest
 
     steps:
@@ -20,11 +20,28 @@ jobs:
       with:
         dotnet-version: 8.0.x
 
+    - name: Cache NuGet packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
+
     - name: Restore dependencies
       run: dotnet restore
 
-    - name: Build
-      run: dotnet build --configuration Release --no-restore
+    - name: Build Core
+      run: dotnet build src/MinRecall.Core/MinRecall.Core.csproj --configuration Release --no-restore
+
+    - name: Build CaptureService  
+      run: dotnet build src/MinRecall.CaptureService/MinRecall.CaptureService.csproj --configuration Release --no-restore
+
+    - name: Build Optimizer
+      run: dotnet build src/MinRecall.Optimizer/MinRecall.Optimizer.csproj --configuration Release --no-restore
+
+    - name: Build UI
+      run: dotnet build src/MinRecall.UI/MinRecall.UI.csproj --configuration Release --no-restore
 
     - name: Test
       run: dotnet test --no-build --verbosity normal
@@ -60,3 +77,27 @@ jobs:
         asset_path: ./MinRecall-UI-${{ github.event.release.tag_name }}.zip
         asset_name: MinRecall-UI-${{ github.event.release.tag_name }}.zip
         asset_content_type: application/zip
+
+  build-core-projects:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build Core
+      run: dotnet build src/MinRecall.Core/MinRecall.Core.csproj --configuration Release --no-restore
+
+    - name: Build CaptureService  
+      run: dotnet build src/MinRecall.CaptureService/MinRecall.CaptureService.csproj --configuration Release --no-restore
+
+    - name: Build Optimizer
+      run: dotnet build src/MinRecall.Optimizer/MinRecall.Optimizer.csproj --configuration Release --no-restore
