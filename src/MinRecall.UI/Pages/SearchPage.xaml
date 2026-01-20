@@ -64,11 +64,13 @@
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
 
-                                <Grid Grid.Column="0" Width="240" Height="135">
+                                <Border Grid.Column="0" Width="240" Height="135" CornerRadius="4">
+                                    <Border.Clip>
+                                        <RectangleGeometry Rect="0,0,240,135" RadiusX="4" RadiusY="4" />
+                                    </Border.Clip>
                                     <Image Source="{Binding Thumbnail}"
-                                           Stretch="UniformToFill"
-                                           CornerRadius="4"/>
-                                </Grid>
+                                           Stretch="UniformToFill" />
+                                </Border>
 
                                 <StackPanel Grid.Column="1" Margin="16,0,0,0" VerticalAlignment="Center">
                                     <TextBlock Text="{Binding Timestamp}"
