@@ -13,6 +13,8 @@
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <XamlCompilerOptimizationLevel>Speed</XamlCompilerOptimizationLevel>
+    <DisableXamlNameInlining>true</DisableXamlNameInlining>
   </PropertyGroup>
 
   <ItemGroup>

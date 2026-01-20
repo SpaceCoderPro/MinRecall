@@ -31,11 +31,6 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
 
-    - name: Setup .NET workloads
-      run: |
-        dotnet workload restore
-        dotnet workload install windowsappsdk
-
     - name: Clean UI build artifacts
       run: dotnet clean src/MinRecall.UI/MinRecall.UI.csproj
 
