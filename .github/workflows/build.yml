@@ -31,8 +31,12 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
 
-    - name: Clean UI build artifacts
-      run: dotnet clean src/MinRecall.UI/MinRecall.UI.csproj
+    - name: Clean solution
+      run: dotnet clean
+
+    - name: Remove obj and bin folders
+      run: |
+        Get-ChildItem -Path . -Include obj,bin -Recurse | Remove-Item -Force -Recurse -ErrorAction SilentlyContinue
 
     - name: Build Core
       run: dotnet build src/MinRecall.Core/MinRecall.Core.csproj --configuration Release --no-restore
