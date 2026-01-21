@@ -1,0 +1,41 @@
+<Application x:Class="MinRecall.UI.App"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:views="using:MinRecall.UI.Views"
+             xmlns:vm="using:MinRecall.UI.ViewModels">
+    <Application.DataTemplates>
+        <DataTemplate DataType="vm:MainViewModel">
+            <views:MainWindow />
+        </DataTemplate>
+    </Application.DataTemplates>
+
+    <Application.Styles>
+        <FluentTheme />
+        
+        <!-- Custom Global Styles -->
+        <Style Selector="Button">
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="16,8"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+        </Style>
+        
+        <Style Selector="TextBox">
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="12,8"/>
+        </Style>
+        
+        <Style Selector="ComboBox">
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="12,8"/>
+        </Style>
+        
+        <!-- Modern Card Style -->
+        <Style Selector="Border.card-modern">
+            <Setter Property="Background" Value="#1a1a1a"/>
+            <Setter Property="BorderBrush" Value="#2a2a2a"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="16"/>
+            <Setter Property="Padding" Value="20"/>
+        </Style>
+    </Application.Styles>
+</Application>

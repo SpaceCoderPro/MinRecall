@@ -1,0 +1,274 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MinRecall.UI.ViewModels"
+             xmlns:local="using:MinRecall.UI.Converters"
+             x:Class="MinRecall.UI.Views.SearchView"
+             x:DataType="vm:SearchViewModel">
+  
+  <Design.DataContext>
+    <vm:SearchViewModel/>
+  </Design.DataContext>
+  
+  <Grid Background="#0f0f0f">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
+    
+    <!-- Header -->
+    <StackPanel Grid.Row="0" Margin="32,24,32,20">
+      <TextBlock Text="Search" FontSize="28" FontWeight="Bold" Foreground="#ffffff" 
+                 Margin="0,0,0,8"/>
+      <TextBlock Text="Find screenshots by text content, app name, or window title" 
+                 FontSize="14" Foreground="#888888"/>
+    </StackPanel>
+    
+    <!-- Search Controls -->
+    <Grid Grid.Row="1" Margin="32,0,32,24">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="Auto"/>
+      </Grid.ColumnDefinitions>
+      
+      <!-- Advanced Search Box -->
+      <Border Grid.Column="0" Background="#1a1a1a" CornerRadius="16" Padding="24,16" 
+              BorderBrush="#2a2a2a" BorderThickness="1">
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          
+          <TextBlock Grid.Row="0" Text="Search Recall" FontSize="12" FontWeight="Medium" 
+                     Foreground="#888888" Margin="0,0,0,8"/>
+          
+          <Border Grid.Row="1" Background="#2a2a2a" CornerRadius="12" Padding="20,12" 
+                  BorderBrush="#3a3a3a" BorderThickness="1">
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+              </Grid.ColumnDefinitions>
+              
+              <TextBlock Text="🔍" FontSize="20" Foreground="#888888" 
+                         VerticalAlignment="Center" Grid.Column="0" Margin="0,0,16,0"/>
+              <TextBox Grid.Column="1" Background="Transparent" BorderThickness="0" 
+                      Foreground="#ffffff" FontSize="16" Watermark="Search screenshots, text, apps..." 
+                      Text="{Binding SearchQuery}"/>
+              <Border Grid.Column="2" Width="32" Height="32" CornerRadius="16" 
+                     Background="#00d9ff" Margin="16,0,0,0">
+                <TextBlock Text="⌘" Foreground="#0f0f0f" FontSize="12" FontWeight="Bold" 
+                          HorizontalAlignment="Center" VerticalAlignment="Center"/>
+              </Border>
+            </Grid>
+          </Border>
+          
+          <!-- Search Filters -->
+          <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,12,0,0" Spacing="16">
+            <Button Background="#2a2a2a" BorderThickness="0" Padding="12,8" CornerRadius="8">
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <TextBlock Text="🔽" FontSize="16" Foreground="#888888"/>
+                <TextBlock Text="Filters" Foreground="#888888" FontSize="12"/>
+              </StackPanel>
+            </Button>
+            <Button Background="#2a2a2a" BorderThickness="0" Padding="12,8" CornerRadius="8">
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <TextBlock Text="📅" FontSize="16" Foreground="#888888"/>
+                <TextBlock Text="Date Range" Foreground="#888888" FontSize="12"/>
+              </StackPanel>
+            </Button>
+            <Button Background="#2a2a2a" BorderThickness="0" Padding="12,8" CornerRadius="8">
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <TextBlock Text="📱" FontSize="16" Foreground="#888888"/>
+                <TextBlock Text="Apps" Foreground="#888888" FontSize="12"/>
+              </StackPanel>
+            </Button>
+          </StackPanel>
+        </Grid>
+      </Border>
+      
+      <!-- Search Stats -->
+      <Border Grid.Column="1" Background="#1a1a1a" CornerRadius="16" Padding="24,16" 
+              BorderBrush="#2a2a2a" BorderThickness="1" Margin="24,0,0,0" MinWidth="280">
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          
+          <TextBlock Grid.Row="0" Text="Search Results" FontSize="12" FontWeight="Medium" 
+                     Foreground="#888888" Margin="0,0,0,16"/>
+          
+          <StackPanel Grid.Row="1" Spacing="16">
+            <StackPanel>
+              <TextBlock Text="{Binding ResultCount, StringFormat='{}{0:N0}'}" FontSize="24" 
+                         FontWeight="Bold" Foreground="#00d9ff"/>
+              <TextBlock Text="Results Found" FontSize="12" Foreground="#888888"/>
+            </StackPanel>
+            
+            <StackPanel>
+              <TextBlock Text="{Binding SearchDuration.TotalMilliseconds, StringFormat='{}{0:F0}ms'}" 
+                         FontSize="18" FontWeight="Bold" Foreground="#ffffff"/>
+              <TextBlock Text="Search Time" FontSize="12" Foreground="#888888"/>
+            </StackPanel>
+          </StackPanel>
+          
+          <Border Grid.Row="2" Background="#2a2a2a" CornerRadius="8" Padding="16,12" Margin="0,24,0,0">
+            <StackPanel>
+              <TextBlock Text="Tips" FontSize="10" FontWeight="Bold" Foreground="#888888" 
+                         Margin="0,0,0,8"/>
+              <TextBlock Text="Use quotes for exact phrases" FontSize="10" Foreground="#666666" 
+                         TextWrapping="Wrap"/>
+              <TextBlock Text="Filter by app: app:vscode" FontSize="10" Foreground="#666666" 
+                         TextWrapping="Wrap"/>
+            </StackPanel>
+          </Border>
+        </Grid>
+      </Border>
+    </Grid>
+    
+    <!-- Search Results -->
+    <ScrollViewer Grid.Row="2" Margin="32,0,32,32">
+      <StackPanel Spacing="12">
+        
+        <!-- Results Header -->
+        <Border IsVisible="{Binding HasSearched}" Background="#1a1a1a" CornerRadius="12" 
+                Padding="20,16" BorderBrush="#2a2a2a" BorderThickness="1" Margin="0,0,0,16">
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            
+            <StackPanel Grid.Column="0">
+              <TextBlock Text="{Binding ResultCount, StringFormat='{}{0} results'}" 
+                         FontSize="16" FontWeight="Bold" Foreground="#ffffff"/>
+              <TextBlock Text="{Binding SearchQuery}" FontSize="12" Foreground="#888888"/>
+            </StackPanel>
+            
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12">
+              <Button Background="#2a2a2a" BorderThickness="0" Padding="12,8" CornerRadius="8">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                  <TextBlock Text="🔲" FontSize="16" Foreground="#888888"/>
+                  <TextBlock Text="Grid" Foreground="#888888" FontSize="12"/>
+                </StackPanel>
+              </Button>
+              <Button Background="#2a2a2a" BorderThickness="0" Padding="12,8" CornerRadius="8">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                  <TextBlock Text="📋" FontSize="16" Foreground="#888888"/>
+                  <TextBlock Text="List" Foreground="#888888" FontSize="12"/>
+                </StackPanel>
+              </Button>
+            </StackPanel>
+          </Grid>
+        </Border>
+        
+        <!-- Results Grid -->
+        <ItemsControl ItemsSource="{Binding SearchResults}">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <WrapPanel Orientation="Horizontal" HorizontalAlignment="Left" 
+                        ItemWidth="400"/>
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <Border Background="#1a1a1a" CornerRadius="16" Padding="20" 
+                      BorderBrush="#2a2a2a" BorderThickness="1" MinWidth="380" MaxWidth="420">
+                <StackPanel>
+                  <!-- Thumbnail -->
+                  <Border Width="340" Height="200" CornerRadius="12" Background="#2a2a2a" 
+                          Margin="0,0,0,16">
+                    <Grid>
+                      <Rectangle Fill="#2a2a2a" />
+                      <TextBlock Text="🖼️" FontSize="48" Foreground="#666666" 
+                                 HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                      <Border Background="#00d9ff" CornerRadius="6" Padding="6,3" 
+                              HorizontalAlignment="Left" VerticalAlignment="Top" 
+                              Margin="12,12">
+                        <TextBlock Text="{Binding Status}" FontSize="9" 
+                                   FontWeight="Bold" Foreground="#0f0f0f"/>
+                      </Border>
+                    </Grid>
+                  </Border>
+                  
+                  <!-- Content -->
+                  <Grid>
+                    <Grid.RowDefinitions>
+                      <RowDefinition Height="Auto"/>
+                      <RowDefinition Height="Auto"/>
+                      <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <TextBlock Grid.Row="0" Text="{Binding Timestamp, StringFormat='{}{0:MMM dd, HH:mm}'}" 
+                               FontSize="12" FontWeight="Bold" Foreground="#00d9ff" Margin="0,0,0,8"/>
+                    
+                    <TextBlock Grid.Row="1" Text="{Binding ProcessName}" FontSize="14" 
+                               Foreground="#ffffff" FontWeight="Medium" Margin="0,0,0,8"/>
+                    
+                    <TextBlock Grid.Row="2" Text="{Binding WindowTitle}" FontSize="13" 
+                               Foreground="#cccccc" TextWrapping="Wrap" MaxLines="2" 
+                               Margin="0,0,0,12"/>
+                    
+                    <!-- Actions -->
+                    <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
+                      <Button Background="#2a2a2a" BorderThickness="0" Padding="8,4" CornerRadius="6">
+                        <TextBlock Text="🔍" FontSize="16" Foreground="#888888"/>
+                      </Button>
+                      <Button Background="#2a2a2a" BorderThickness="0" Padding="8,4" CornerRadius="6">
+                        <TextBlock Text="⬇️" FontSize="16" Foreground="#888888"/>
+                      </Button>
+                      <Button Background="#2a2a2a" BorderThickness="0" Padding="8,4" CornerRadius="6">
+                        <TextBlock Text="🔗" FontSize="16" Foreground="#888888"/>
+                      </Button>
+                    </StackPanel>
+                  </Grid>
+                </StackPanel>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+        
+        <!-- No Results State -->
+        <Border IsVisible="{Binding HasSearched, Converter={x:Static local:InverseBooleanConverter.Instance}}" 
+                Background="#1a1a1a" CornerRadius="16" Padding="48,32" 
+                BorderBrush="#2a2a2a" BorderThickness="1" Margin="0,32">
+          <StackPanel HorizontalAlignment="Center">
+            <TextBlock Text="🔍" FontSize="64" Foreground="#666666" 
+                       Margin="0,0,0,16" HorizontalAlignment="Center"/>
+            <TextBlock Text="No results found" FontSize="20" FontWeight="Bold" 
+                       Foreground="#ffffff" Margin="0,0,0,8" HorizontalAlignment="Center"/>
+            <TextBlock Text="Try different keywords or check your spelling" 
+                       Foreground="#888888" HorizontalAlignment="Center"/>
+          </StackPanel>
+        </Border>
+      </StackPanel>
+    </ScrollViewer>
+    
+    <!-- Loading State -->
+    <Border Grid.RowSpan="3" Background="#0f0f0f80" IsVisible="{Binding IsSearching}">
+      <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+        <Border Width="200" Height="4" Background="#2a2a2a" CornerRadius="2" 
+                Margin="0,0,0,16">
+          <Border Width="100" Height="4" Background="#00d9ff" CornerRadius="2"/>
+        </Border>
+        <TextBlock Text="Searching..." 
+                   Foreground="#888888" HorizontalAlignment="Center"/>
+      </StackPanel>
+    </Border>
+  </Grid>
+  
+  <UserControl.Styles>
+    <Style Selector="Button">
+      <Setter Property="Cursor" Value="Hand"/>
+    </Style>
+    <Style Selector="Button:pointerover">
+      <Setter Property="Background" Value="#3a3a3a"/>
+    </Style>
+  </UserControl.Styles>
+</UserControl>
