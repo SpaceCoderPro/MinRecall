@@ -1,0 +1,459 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MinRecall.UI.ViewModels"
+             x:Class="MinRecall.UI.Views.SettingsView"
+             x:DataType="vm:SettingsViewModel">
+  
+  <Design.DataContext>
+    <vm:SettingsViewModel/>
+  </Design.DataContext>
+  
+  <Grid Background="#0f0f0f">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
+    
+    <!-- Header -->
+    <StackPanel Grid.Row="0" Margin="32,24,32,20">
+      <TextBlock Text="Settings" FontSize="28" FontWeight="Bold" Foreground="#ffffff" 
+                 Margin="0,0,0,8"/>
+      <TextBlock Text="Configure your MinRecall experience and preferences" 
+                 FontSize="14" Foreground="#888888"/>
+    </StackPanel>
+    
+    <!-- Settings Content -->
+    <ScrollViewer Grid.Row="1" Margin="32,0,32,32">
+      <StackPanel Spacing="24">
+        
+        <!-- Capture Settings -->
+        <Border Background="#1a1a1a" CornerRadius="16" Padding="24" 
+                BorderBrush="#2a2a2a" BorderThickness="1">
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            
+            <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,20">
+              <TextBlock Text="📷" FontSize="24" Foreground="#00d9ff" 
+                         VerticalAlignment="Center" Margin="0,0,12,0"/>
+              <TextBlock Text="Screenshot Capture" FontSize="18" FontWeight="Bold" 
+                         Foreground="#ffffff" VerticalAlignment="Center"/>
+            </StackPanel>
+            
+            <Grid Grid.Row="1">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="280"/>
+              </Grid.ColumnDefinitions>
+              
+              <StackPanel Grid.Column="0" Spacing="16">
+                
+                <!-- Capture Interval -->
+                <Grid>
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                  </Grid.RowDefinitions>
+                  
+                  <TextBlock Grid.Row="0" Text="Capture Interval" FontSize="14" FontWeight="Medium" 
+                             Foreground="#ffffff" Margin="0,0,0,4"/>
+                  <TextBlock Grid.Row="0" Text="How often to take screenshots" FontSize="12" 
+                             Foreground="#888888" Margin="0,0,0,8"/>
+                  
+                  <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="8">
+                    <Button Background="#2a2a2a" BorderThickness="0" Padding="12,8" CornerRadius="8"
+                            Click="DecreaseInterval">
+                      <TextBlock Text="−" FontSize="16" Foreground="#888888"/>
+                    </Button>
+                    <Border Background="#2a2a2a" CornerRadius="8" Padding="16,8" MinWidth="60">
+                      <TextBlock Text="{Binding CaptureInterval}" Foreground="#ffffff" 
+                                 HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <Button Background="#2a2a2a" BorderThickness="0" Padding="12,8" CornerRadius="8"
+                            Click="IncreaseInterval">
+                      <TextBlock Text="+" FontSize="16" Foreground="#888888"/>
+                    </Button>
+                    <TextBlock Text="seconds" Foreground="#888888" VerticalAlignment="Center" 
+                               Margin="8,0,0,0"/>
+                  </StackPanel>
+                </Grid>
+                
+                <!-- Image Quality -->
+                <Grid>
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                  </Grid.RowDefinitions>
+                  
+                  <StackPanel Grid.Row="0">
+                    <TextBlock Text="Image Quality" FontSize="14" FontWeight="Medium" 
+                               Foreground="#ffffff" Margin="0,0,0,4"/>
+                    <TextBlock Text="Higher quality uses more storage" FontSize="12" 
+                               Foreground="#888888" Margin="0,0,0,8"/>
+                  </StackPanel>
+                  
+                  <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="*"/>
+                      <ColumnDefinition Width="60"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <Slider Grid.Column="0" Minimum="10" Maximum="100" Value="{Binding ImageQuality}" 
+                            Foreground="#00d9ff" Background="#2a2a2a"/>
+                    <TextBlock Grid.Column="1" Text="{Binding ImageQuality, StringFormat='{}{0}%'}" 
+                               Foreground="#ffffff" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                  </Grid>
+                </Grid>
+                
+                <!-- Compression -->
+                <Grid>
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                  </Grid.RowDefinitions>
+                  
+                  <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12">
+                    <CheckBox IsChecked="{Binding EnableCompression}" Foreground="#ffffff"/>
+                    <StackPanel>
+                      <TextBlock Text="Enable Compression" FontSize="14" FontWeight="Medium" 
+                                 Foreground="#ffffff"/>
+                      <TextBlock Text="Compress images to save storage space" FontSize="12" 
+                                 Foreground="#888888"/>
+                    </StackPanel>
+                  </StackPanel>
+                  
+                  <Border Grid.Row="1" IsVisible="{Binding EnableCompression}" 
+                          Background="#2a2a2a" CornerRadius="8" Padding="16" Margin="0,12,0,0">
+                    <ComboBox SelectedItem="{Binding CompressionType}" Background="Transparent" 
+                              BorderThickness="0" Foreground="#ffffff">
+                      <ComboBoxItem Content="AVIF" Tag="AVIF"/>
+                      <ComboBoxItem Content="WebP" Tag="WebP"/>
+                      <ComboBoxItem Content="JPEG" Tag="JPEG"/>
+                      <ComboBoxItem Content="PNG" Tag="PNG"/>
+                    </ComboBox>
+                  </Border>
+                </Grid>
+              </StackPanel>
+            </Grid>
+          </Grid>
+        </Border>
+        
+        <!-- Privacy Settings -->
+        <Border Background="#1a1a1a" CornerRadius="16" Padding="24" 
+                BorderBrush="#2a2a2a" BorderThickness="1">
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            
+            <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,20">
+              <TextBlock Text="🔒" FontSize="24" Foreground="#ff6b6b" 
+                         VerticalAlignment="Center" Margin="0,0,12,0"/>
+              <TextBlock Text="Privacy &amp; Security" FontSize="18" FontWeight="Bold" 
+                         Foreground="#ffffff" VerticalAlignment="Center"/>
+            </StackPanel>
+            
+            <StackPanel Grid.Row="1" Spacing="16">
+              
+              <!-- Privacy Blacklist -->
+              <Grid>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="Auto"/>
+                  <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12">
+                  <CheckBox IsChecked="{Binding EnablePrivacyBlacklist}" Foreground="#ffffff"/>
+                  <StackPanel>
+                    <TextBlock Text="Enable Privacy Blacklist" FontSize="14" FontWeight="Medium" 
+                               Foreground="#ffffff"/>
+                    <TextBlock Text="Skip capturing sensitive applications" FontSize="12" 
+                               Foreground="#888888"/>
+                  </StackPanel>
+                </StackPanel>
+                
+                <Border Grid.Row="1" IsVisible="{Binding EnablePrivacyBlacklist}" 
+                        Background="#2a2a2a" CornerRadius="8" Padding="16" Margin="0,12,0,0">
+                  <StackPanel>
+                    <TextBlock Text="Blacklisted Applications" FontSize="12" FontWeight="Medium" 
+                               Foreground="#888888" Margin="0,0,0,8"/>
+                    <ItemsControl ItemsSource="{Binding BlacklistedApps}">
+                      <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                          <WrapPanel Orientation="Horizontal" HorizontalAlignment="Left" 
+                                    ItemWidth="160"/>
+                        </ItemsPanelTemplate>
+                      </ItemsControl.ItemsPanel>
+                      
+                      <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                          <Border Background="#1a1a1a" CornerRadius="6" Padding="8,4">
+                            <TextBlock Text="{Binding}" FontSize="11" Foreground="#cccccc"/>
+                          </Border>
+                        </DataTemplate>
+                      </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                  </StackPanel>
+                </Border>
+              </Grid>
+              
+              <!-- OCR Settings -->
+              <Grid>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="Auto"/>
+                  <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12">
+                  <CheckBox IsChecked="{Binding EnableOcr}" Foreground="#ffffff"/>
+                  <StackPanel>
+                    <TextBlock Text="Enable OCR (Text Recognition)" FontSize="14" FontWeight="Medium" 
+                               Foreground="#ffffff"/>
+                    <TextBlock Text="Extract text from screenshots for better search" FontSize="12" 
+                               Foreground="#888888"/>
+                  </StackPanel>
+                </StackPanel>
+              </Grid>
+            </StackPanel>
+          </Grid>
+        </Border>
+        
+        <!-- Performance Settings -->
+        <Border Background="#1a1a1a" CornerRadius="16" Padding="24" 
+                BorderBrush="#2a2a2a" BorderThickness="1">
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            
+            <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,20">
+              <TextBlock Text="⚡" FontSize="24" Foreground="#00ff88" 
+                         VerticalAlignment="Center" Margin="0,0,12,0"/>
+              <TextBlock Text="Performance &amp; Storage" FontSize="18" FontWeight="Bold" 
+                         Foreground="#ffffff" VerticalAlignment="Center"/>
+            </StackPanel>
+            
+            <StackPanel Grid.Row="1" Spacing="16">
+              
+              <!-- CPU Threshold -->
+              <Grid>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="Auto"/>
+                  <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                
+                <StackPanel Grid.Row="0">
+                  <TextBlock Text="CPU Usage Threshold" FontSize="14" FontWeight="Medium" 
+                             Foreground="#ffffff" Margin="0,0,0,4"/>
+                  <TextBlock Text="Pause capture when CPU usage exceeds this limit" FontSize="12" 
+                             Foreground="#888888" Margin="0,0,0,8"/>
+                </StackPanel>
+                
+                <Grid Grid.Row="1">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="60"/>
+                  </Grid.ColumnDefinitions>
+                  
+                  <Slider Grid.Column="0" Minimum="10" Maximum="100" Value="{Binding CpuThreshold}" 
+                          Foreground="#00ff88" Background="#2a2a2a"/>
+                  <TextBlock Grid.Column="1" Text="{Binding CpuThreshold, StringFormat='{}{0}%'}" 
+                             Foreground="#ffffff" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                </Grid>
+              </Grid>
+              
+              <!-- Storage Duration -->
+              <Grid>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="Auto"/>
+                  <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                
+                <StackPanel Grid.Row="0">
+                  <TextBlock Text="Storage Duration" FontSize="14" FontWeight="Medium" 
+                             Foreground="#ffffff" Margin="0,0,0,4"/>
+                  <TextBlock Text="Automatically delete screenshots after this many days" FontSize="12" 
+                             Foreground="#888888" Margin="0,0,0,8"/>
+                </StackPanel>
+                
+                <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="8">
+                  <Button Background="#2a2a2a" BorderThickness="0" Padding="12,8" CornerRadius="8">
+                    <TextBlock Text="−" FontSize="16" Foreground="#888888"/>
+                  </Button>
+                  <Border Background="#2a2a2a" CornerRadius="8" Padding="16,8" MinWidth="80">
+                    <TextBlock Text="{Binding MaxStorageDays, StringFormat='{}{0} days'}" Foreground="#ffffff" 
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                  </Border>
+                  <Button Background="#2a2a2a" BorderThickness="0" Padding="12,8" CornerRadius="8">
+                    <TextBlock Text="+" FontSize="16" Foreground="#888888"/>
+                  </Button>
+                </StackPanel>
+              </Grid>
+            </StackPanel>
+          </Grid>
+        </Border>
+        
+        <!-- System Integration -->
+        <Border Background="#1a1a1a" CornerRadius="16" Padding="24" 
+                BorderBrush="#2a2a2a" BorderThickness="1">
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            
+            <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,20">
+              <TextBlock Text="💻" FontSize="24" Foreground="#ffaa00" 
+                         VerticalAlignment="Center" Margin="0,0,12,0"/>
+              <TextBlock Text="System Integration" FontSize="18" FontWeight="Bold" 
+                         Foreground="#ffffff" VerticalAlignment="Center"/>
+            </StackPanel>
+            
+            <StackPanel Grid.Row="1" Spacing="16">
+              
+              <!-- Auto Start -->
+              <Grid>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="Auto"/>
+                  <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12">
+                  <CheckBox IsChecked="{Binding StartWithWindows}" Foreground="#ffffff"/>
+                  <StackPanel>
+                    <TextBlock Text="Start with Windows" FontSize="14" FontWeight="Medium" 
+                               Foreground="#ffffff"/>
+                    <TextBlock Text="Automatically start MinRecall when Windows starts" FontSize="12" 
+                               Foreground="#888888"/>
+                  </StackPanel>
+                </StackPanel>
+              </Grid>
+              
+              <!-- Auto Start Capture -->
+              <Grid>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="Auto"/>
+                  <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12">
+                  <CheckBox IsChecked="{Binding AutoStartCapture}" Foreground="#ffffff"/>
+                  <StackPanel>
+                    <TextBlock Text="Auto Start Capture" FontSize="14" FontWeight="Medium" 
+                               Foreground="#ffffff"/>
+                    <TextBlock Text="Begin capturing screenshots immediately on startup" FontSize="12" 
+                               Foreground="#888888"/>
+                  </StackPanel>
+                </StackPanel>
+              </Grid>
+              
+              <!-- Notifications -->
+              <Grid>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="Auto"/>
+                  <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12">
+                  <CheckBox IsChecked="{Binding EnableNotifications}" Foreground="#ffffff"/>
+                  <StackPanel>
+                    <TextBlock Text="Enable Notifications" FontSize="14" FontWeight="Medium" 
+                               Foreground="#ffffff"/>
+                    <TextBlock Text="Show system notifications for capture events" FontSize="12" 
+                               Foreground="#888888"/>
+                  </StackPanel>
+                </StackPanel>
+              </Grid>
+            </StackPanel>
+          </Grid>
+        </Border>
+        
+        <!-- Appearance -->
+        <Border Background="#1a1a1a" CornerRadius="16" Padding="24" 
+                BorderBrush="#2a2a2a" BorderThickness="1">
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            
+            <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,20">
+              <TextBlock Text="🎨" FontSize="24" Foreground="#ff6b6b" 
+                         VerticalAlignment="Center" Margin="0,0,12,0"/>
+              <TextBlock Text="Appearance" FontSize="18" FontWeight="Bold" 
+                         Foreground="#ffffff" VerticalAlignment="Center"/>
+            </StackPanel>
+            
+            <StackPanel Grid.Row="1" Spacing="16">
+              
+              <!-- Theme -->
+              <Grid>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="Auto"/>
+                  <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                
+                <StackPanel Grid.Row="0">
+                  <TextBlock Text="Theme" FontSize="14" FontWeight="Medium" 
+                             Foreground="#ffffff" Margin="0,0,0,4"/>
+                  <TextBlock Text="Choose your preferred color scheme" FontSize="12" 
+                             Foreground="#888888" Margin="0,0,0,8"/>
+                </StackPanel>
+                
+                <Border Grid.Row="1" Background="#2a2a2a" CornerRadius="8" Padding="16">
+                  <ComboBox SelectedItem="{Binding Theme}" Background="Transparent" 
+                            BorderThickness="0" Foreground="#ffffff">
+                    <ComboBoxItem Content="Dark" Tag="Dark"/>
+                    <ComboBoxItem Content="Light" Tag="Light"/>
+                    <ComboBoxItem Content="Auto" Tag="Auto"/>
+                  </ComboBox>
+                </Border>
+              </Grid>
+              
+              <!-- Animations -->
+              <Grid>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="Auto"/>
+                  <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12">
+                  <CheckBox IsChecked="{Binding EnableAnimations}" Foreground="#ffffff"/>
+                  <StackPanel>
+                    <TextBlock Text="Enable Animations" FontSize="14" FontWeight="Medium" 
+                               Foreground="#ffffff"/>
+                    <TextBlock Text="Show smooth transitions and animations" FontSize="12" 
+                               Foreground="#888888"/>
+                  </StackPanel>
+                </StackPanel>
+              </Grid>
+            </StackPanel>
+          </Grid>
+        </Border>
+        
+        <!-- Save Button -->
+        <StackPanel Orientation="Horizontal" Spacing="16" HorizontalAlignment="Center" Margin="0,32,0,0">
+          <Button Background="#00d9ff" BorderThickness="0" Padding="32,16" CornerRadius="12"
+                  Click="SaveSettings">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <TextBlock Text="💾" FontSize="20" Foreground="#0f0f0f"/>
+              <TextBlock Text="Save Settings" Foreground="#0f0f0f" FontSize="14" FontWeight="Medium"/>
+            </StackPanel>
+          </Button>
+          
+          <Button Background="#2a2a2a" BorderThickness="0" Padding="32,16" CornerRadius="12"
+                  Click="ResetToDefaults">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <TextBlock Text="🔄" FontSize="20" Foreground="#888888"/>
+              <TextBlock Text="Reset to Defaults" Foreground="#888888" FontSize="14"/>
+            </StackPanel>
+          </Button>
+        </StackPanel>
+      </StackPanel>
+    </ScrollViewer>
+  </Grid>
+</UserControl>
