@@ -94,9 +94,9 @@ jobs:
           Copy-Item -Path $_.FullName -Destination "$msixDir/" -Force -ErrorAction SilentlyContinue
         }
         
-        # Copy package manifest
-        Write-Host "Copying Package.appxmanifest..."
-        Copy-Item -Path "./src/MinRecall.UI/Package.appxmanifest" -Destination "$msixDir/" -Force
+        # Copy package manifest (must be named AppxManifest.xml)
+        Write-Host "Copying AppxManifest.xml..."
+        Copy-Item -Path "./src/MinRecall.UI/AppxManifest.xml" -Destination "$msixDir/AppxManifest.xml" -Force
         
         # Create Assets directory
         Write-Host "Creating Assets directory..."

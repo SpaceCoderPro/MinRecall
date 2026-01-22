@@ -36,7 +36,7 @@ public partial class HeatmapViewModel : ObservableObject
         LoadHeatmapData();
     }
 
-    private async void LoadHeatmapData()
+    private void LoadHeatmapData()
     {
         IsLoading = true;
         

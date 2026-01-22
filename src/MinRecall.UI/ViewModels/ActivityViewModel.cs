@@ -40,7 +40,7 @@ public partial class ActivityViewModel : ObservableObject
         LoadActivityData();
     }
 
-    private async void LoadActivityData()
+    private void LoadActivityData()
     {
         IsLoading = true;
         
