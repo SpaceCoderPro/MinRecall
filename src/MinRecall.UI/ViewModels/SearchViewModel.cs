@@ -1,13 +1,17 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using MinRecall.Core.Models;
+using MinRecall.UI.Services;
 using System.Collections.ObjectModel;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MinRecall.UI.ViewModels;
 
 public partial class SearchViewModel : ObservableObject
 {
+    private readonly DatabaseService _database;
+
     [ObservableProperty]
     private string _searchQuery = string.Empty;
 
@@ -28,6 +32,8 @@ public partial class SearchViewModel : ObservableObject
 
     public SearchViewModel()
     {
+        _database = DatabaseService.Instance;
+
         // Subscribe to search query changes
         PropertyChanged += (s, e) =>
         {
@@ -74,22 +80,22 @@ public partial class SearchViewModel : ObservableObject
 
         try
         {
-            // TODO: Implement actual search using MinRecall.Core
-            // For now, simulate search with sample data
-            var results = GenerateSearchResults();
+            var results = _database.SearchScreenshots(SearchQuery, limit: 100);
             
-            SearchResults.Clear();
-            foreach (var result in results)
+            Avalonia.Threading.Dispatcher.UIThread.Post(() =>
             {
-                SearchResults.Add(result);
-            }
+                SearchResults.Clear();
+                foreach (var result in results)
+                {
+                    SearchResults.Add(result);
+                }
 
-            ResultCount = SearchResults.Count;
-            HasSearched = true;
+                ResultCount = SearchResults.Count;
+                HasSearched = true;
+            });
         }
         catch (Exception ex)
         {
-            // TODO: Log error
             System.Diagnostics.Debug.WriteLine($"Search error: {ex.Message}");
         }
         finally
@@ -98,57 +104,5 @@ public partial class SearchViewModel : ObservableObject
             SearchDuration = stopwatch.Elapsed;
             IsSearching = false;
         }
-    }
-
-    private IEnumerable<Screenshot> GenerateSearchResults()
-    {
-        var allItems = new List<Screenshot>();
-        var random = new Random();
-
-        // Generate sample data
-        for (int i = 0; i < 50; i++)
-        {
-            var item = new Screenshot
-            {
-                Id = random.Next(1000, 9999),
-                Timestamp = DateTime.Now.AddHours(-random.Next(0, 72)),
-                ProcessName = random.Next(2) == 0 ? "VS Code" : "Chrome",
-                WindowTitle = GetRandomWindowTitle(),
-                FilePath = $"/Assets/Images/sample_{i % 10}.png",
-                FileSize = random.Next(300, 2500),
-                Width = 1920,
-                Height = 1080,
-                Status = ScreenshotStatus.Optimized
-            };
-
-            // Filter based on search query
-            if (string.IsNullOrWhiteSpace(SearchQuery) ||
-                item.ProcessName.Contains(SearchQuery, StringComparison.OrdinalIgnoreCase) ||
-                item.WindowTitle.Contains(SearchQuery, StringComparison.OrdinalIgnoreCase))
-            {
-                allItems.Add(item);
-            }
-        }
-
-        return allItems.OrderByDescending(x => x.Timestamp).Take(20);
-    }
-
-    private string GetRandomWindowTitle()
-    {
-        var titles = new[]
-        {
-            "Main Program - Development",
-            "Dashboard - Analytics",
-            "Documentation - API Reference", 
-            "Code Review - Pull Request #123",
-            "Meeting Notes - Weekly Standup",
-            "Database Schema - Users Table",
-            "Settings - Application Configuration",
-            "Logs - System Messages",
-            "Code Editor - Project Alpha",
-            "Browser - Stack Overflow"
-        };
-        
-        return titles[new Random().Next(titles.Length)];
     }
 }
