@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
          xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
-         xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10">
+         xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+         xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+         IgnorableNamespaces="uap rescap desktop">
   
   <Identity Name="MinRecallApp" 
             Publisher="CN=MinRecall" 
@@ -13,6 +15,14 @@
     <Logo>Assets\square150x150.png</Logo>
   </Properties>
   
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.19041.0" MaxVersionTested="10.0.22000.0" />
+  </Dependencies>
+  
+  <Resources>
+    <Resource Language="en-us" />
+  </Resources>
+  
   <Applications>
     <Application Id="RecallApp" Executable="MinRecall.UI.exe" EntryPoint="Windows.FullTrustApplication">
       <uap:VisualElements DisplayName="Recall App" 
@@ -20,13 +30,14 @@
                           Square150x150Logo="Assets\square150x150.png"
                           Square44x44Logo="Assets\square44x44.png"
                           BackgroundColor="transparent" />
-      <desktop:Extension Category="windows.fullTrustProcess" Executable="MinRecall.CaptureService.exe" />
-      <desktop:Extension Category="windows.fullTrustProcess" Executable="MinRecall.Optimizer.exe" />
+      <Extensions>
+        <desktop:Extension Category="windows.fullTrustProcess" Executable="MinRecall.CaptureService.exe" />
+        <desktop:Extension Category="windows.fullTrustProcess" Executable="MinRecall.Optimizer.exe" />
+      </Extensions>
     </Application>
   </Applications>
   
   <Capabilities>
-    <Capability Name="internetClient" />
-    <rescap:Capability Name="runFullTrust" xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities" />
+    <rescap:Capability Name="runFullTrust" />
   </Capabilities>
 </Package>
