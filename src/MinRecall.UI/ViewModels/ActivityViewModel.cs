@@ -1,13 +1,17 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using MinRecall.UI.Services;
 using System.Collections.ObjectModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace MinRecall.UI.ViewModels;
 
 public partial class ActivityViewModel : ObservableObject
 {
+    private readonly DatabaseService _database;
+
     [ObservableProperty]
     private DateTime _selectedDate = DateTime.Today;
 
@@ -31,6 +35,7 @@ public partial class ActivityViewModel : ObservableObject
 
     public ActivityViewModel()
     {
+        _database = DatabaseService.Instance;
         LoadActivityData();
         LoadAvailableDates();
     }
@@ -46,22 +51,37 @@ public partial class ActivityViewModel : ObservableObject
         
         try
         {
-            // TODO: Load actual data from MinRecall.Core
-            var sampleData = GenerateSampleActivityData();
-            ActivityLog.Clear();
-            
-            foreach (var item in sampleData)
+            await Task.Run(() =>
             {
-                ActivityLog.Add(item);
-            }
+                var startOfDay = SelectedDate.Date;
+                var endOfDay = startOfDay.AddDays(1).AddSeconds(-1);
+                
+                var activityLogs = _database.GetActivityLog(startOfDay, endOfDay);
+                
+                Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+                {
+                    ActivityLog.Clear();
+                    foreach (var log in activityLogs)
+                    {
+                        ActivityLog.Add(new ActivityLogItem
+                        {
+                            Id = Guid.NewGuid(),
+                            StartTime = log.StartTime,
+                            EndTime = log.EndTime,
+                            ProcessName = log.ProcessName,
+                            WindowTitle = log.WindowTitle,
+                            ScreenshotCount = log.ScreenshotCount
+                        });
+                    }
 
-            TotalActivities = ActivityLog.Count;
-            TotalActiveTime = CalculateTotalActiveTime();
-            MostUsedApplication = FindMostUsedApplication();
+                    TotalActivities = ActivityLog.Count;
+                    TotalActiveTime = CalculateTotalActiveTime();
+                    MostUsedApplication = FindMostUsedApplication();
+                });
+            });
         }
         catch (Exception ex)
         {
-            // TODO: Log error
             System.Diagnostics.Debug.WriteLine($"Error loading activity data: {ex.Message}");
         }
         finally
@@ -72,7 +92,6 @@ public partial class ActivityViewModel : ObservableObject
 
     private void LoadAvailableDates()
     {
-        // TODO: Load actual dates from database
         var dates = new List<DateTime>();
         var today = DateTime.Today;
         
@@ -86,77 +105,6 @@ public partial class ActivityViewModel : ObservableObject
         {
             AvailableDates.Add(date.ToString("yyyy-MM-dd"));
         }
-    }
-
-    private IEnumerable<ActivityLogItem> GenerateSampleActivityData()
-    {
-        var activities = new List<ActivityLogItem>();
-        var random = new Random();
-        var currentDate = SelectedDate;
-        
-        // Generate activities throughout the day
-        var startTime = currentDate.Date.AddHours(8); // Start at 8 AM
-        var endTime = currentDate.Date.AddHours(20);  // End at 8 PM
-        
-        var currentTime = startTime;
-        var currentProcess = string.Empty;
-        
-        while (currentTime < endTime)
-        {
-            // Generate a new activity every 15-90 minutes
-            var duration = TimeSpan.FromMinutes(random.Next(15, 91));
-            var nextActivity = random.Next(3) == 0; // 33% chance of new activity
-            
-            if (nextActivity || string.IsNullOrEmpty(currentProcess))
-            {
-                currentProcess = GetRandomProcess();
-                activities.Add(new ActivityLogItem
-                {
-                    Id = Guid.NewGuid(),
-                    StartTime = currentTime,
-                    EndTime = currentTime.Add(duration),
-                    ProcessName = currentProcess,
-                    WindowTitle = GetRandomWindowTitle(currentProcess),
-                    ScreenshotCount = random.Next(1, 15)
-                });
-            }
-            
-            currentTime = currentTime.Add(duration);
-        }
-
-        return activities.OrderBy(x => x.StartTime);
-    }
-
-    private string GetRandomProcess()
-    {
-        var processes = new[]
-        {
-            "VS Code", "Chrome", "Slack", "Teams", "Explorer", 
-            "Notepad", "Paint", "Calculator", "Word", "Excel",
-            "PowerPoint", "Outlook", "Spotify", "Discord", "GitHub Desktop"
-        };
-        
-        return processes[new Random().Next(processes.Length)];
-    }
-
-    private string GetRandomWindowTitle(string processName)
-    {
-        var titles = new Dictionary<string, string[]>
-        {
-            ["VS Code"] = new[] { "Main Program - Development", "Code Review - PR #123", "API Documentation", "Project Settings" },
-            ["Chrome"] = new[] { "Google Search", "Stack Overflow", "GitHub - Repository", "Documentation" },
-            ["Slack"] = new[] { "General Channel", "Development Team", "Random Chat", "Project Updates" },
-            ["Teams"] = new[] { "Weekly Standup", "Code Review", "Project Planning", "Team Chat" },
-            ["Explorer"] = new[] { "Downloads", "Documents", "Project Folder", "System Drive" },
-            ["Notepad"] = new[] { "Meeting Notes", "TODO List", "Ideas", "Draft Document" }
-        };
-
-        if (titles.TryGetValue(processName, out var processTitles))
-        {
-            return processTitles[new Random().Next(processTitles.Length)];
-        }
-        
-        return $"{processName} - Window";
     }
 
     private TimeSpan CalculateTotalActiveTime()

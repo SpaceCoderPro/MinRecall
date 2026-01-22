@@ -1,13 +1,17 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using MinRecall.UI.Services;
 using System.Collections.ObjectModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace MinRecall.UI.ViewModels;
 
 public partial class HeatmapViewModel : ObservableObject
 {
+    private readonly DatabaseService _database;
+
     [ObservableProperty]
     private DateTime _selectedDate = DateTime.Today;
 
@@ -28,6 +32,7 @@ public partial class HeatmapViewModel : ObservableObject
 
     public HeatmapViewModel()
     {
+        _database = DatabaseService.Instance;
         LoadHeatmapData();
     }
 
@@ -42,27 +47,42 @@ public partial class HeatmapViewModel : ObservableObject
         
         try
         {
-            // TODO: Load actual data from MinRecall.Core
-            var (hourlyData, topApplications, totalScreenshots, mostActiveHour) = GenerateSampleHeatmapData();
-            HourlyData.Clear();
-            TopApplications.Clear();
-            
-            foreach (var item in hourlyData)
+            await Task.Run(() =>
             {
-                HourlyData.Add(item);
-            }
-            
-            foreach (var app in topApplications)
-            {
-                TopApplications.Add(app);
-            }
+                var startOfDay = SelectedDate.Date;
+                var endOfDay = startOfDay.AddDays(1).AddSeconds(-1);
+                
+                // Get activity heatmap data
+                var heatmap = _database.GetActivityHeatmap(startOfDay, endOfDay);
+                
+                // Get all screenshots for the day
+                var screenshots = _database.GetScreenshots(startOfDay, endOfDay, null, 1000);
+                
+                Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+                {
+                    // Process hourly data
+                    var hourlyData = ProcessHourlyData(screenshots);
+                    HourlyData.Clear();
+                    foreach (var item in hourlyData)
+                    {
+                        HourlyData.Add(item);
+                    }
+                    
+                    // Process top applications
+                    var topApps = ProcessTopApplications(heatmap);
+                    TopApplications.Clear();
+                    foreach (var app in topApps)
+                    {
+                        TopApplications.Add(app);
+                    }
 
-            TotalScreenshots = totalScreenshots;
-            MostActiveHour = mostActiveHour;
+                    TotalScreenshots = screenshots.Count;
+                    MostActiveHour = hourlyData.OrderByDescending(h => h.Activity).FirstOrDefault()?.Hour ?? 0;
+                });
+            });
         }
         catch (Exception ex)
         {
-            // TODO: Log error
             System.Diagnostics.Debug.WriteLine($"Error loading heatmap data: {ex.Message}");
         }
         finally
@@ -71,60 +91,61 @@ public partial class HeatmapViewModel : ObservableObject
         }
     }
 
-    private (List<ActivityData> hourlyData, List<ApplicationUsage> topApplications, int totalScreenshots, int mostActiveHour) GenerateSampleHeatmapData()
+    private List<ActivityData> ProcessHourlyData(List<MinRecall.Core.Models.Screenshot> screenshots)
     {
         var hourlyData = new List<ActivityData>();
-        var topApps = new List<ApplicationUsage>();
-        var random = new Random();
-        int totalScreenshots = 0;
-        int mostActiveHour = 9;
-        int maxActivity = 0;
+        var maxActivity = 0;
 
-        // Generate hourly data (0-23 hours)
         for (int hour = 0; hour < 24; hour++)
         {
-            var activity = random.Next(0, 20);
-            totalScreenshots += activity;
+            var hourStart = SelectedDate.Date.AddHours(hour);
+            var hourEnd = hourStart.AddHours(1);
             
-            if (activity > maxActivity)
-            {
-                maxActivity = activity;
-                mostActiveHour = hour;
-            }
-            
+            var activity = screenshots.Count(s => s.Timestamp >= hourStart && s.Timestamp < hourEnd);
+            if (activity > maxActivity) maxActivity = activity;
+
             hourlyData.Add(new ActivityData
             {
                 Hour = hour,
                 Activity = activity,
-                Percentage = (activity / 20.0) * 100
+                Percentage = 0
             });
         }
 
-        // Generate top applications
-        var applications = new[]
+        // Calculate percentages
+        if (maxActivity > 0)
         {
-            ("VS Code", 25, "#0078d4"),
-            ("Chrome", 30, "#4285f4"),
-            ("Slack", 15, "#4a154b"),
-            ("Teams", 12, "#6264a7"),
-            ("Explorer", 8, "#0078d4"),
-            ("Notepad", 5, "#ff8c00"),
-            ("Paint", 3, "#00bcf2"),
-            ("Calculator", 2, "#0078d4")
-        };
+            foreach (var data in hourlyData)
+            {
+                data.Percentage = (data.Activity / (double)maxActivity) * 100;
+            }
+        }
 
-        foreach (var (name, percentage, color) in applications)
+        return hourlyData;
+    }
+
+    private List<ApplicationUsage> ProcessTopApplications(Dictionary<string, long> heatmap)
+    {
+        var topApps = new List<ApplicationUsage>();
+        var totalSeconds = heatmap.Values.Sum();
+
+        var colors = new[] { "#0078d4", "#4285f4", "#4a154b", "#6264a7", "#ff8c00", "#00bcf2", "#e74856", "#00b7c3" };
+        int colorIndex = 0;
+
+        foreach (var (process, seconds) in heatmap.OrderByDescending(kv => kv.Value).Take(8))
         {
+            var percentage = totalSeconds > 0 ? (int)((seconds * 100) / totalSeconds) : 0;
             topApps.Add(new ApplicationUsage
             {
-                ApplicationName = name,
+                ApplicationName = process,
                 Percentage = percentage,
-                Color = color,
-                ScreenshotCount = percentage * 12 // Rough calculation
+                Color = colors[colorIndex % colors.Length],
+                ScreenshotCount = (int)(seconds / 60) // Rough estimate
             });
+            colorIndex++;
         }
 
-        return (hourlyData, topApps, totalScreenshots, mostActiveHour);
+        return topApps;
     }
 }
 
