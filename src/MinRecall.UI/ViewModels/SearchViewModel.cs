@@ -51,7 +51,7 @@ public partial class SearchViewModel : ObservableObject
         _searchTimer.Start();
     }
 
-    private async void PerformSearch()
+    private void PerformSearch()
     {
         if (string.IsNullOrWhiteSpace(SearchQuery))
         {
@@ -61,7 +61,7 @@ public partial class SearchViewModel : ObservableObject
             return;
         }
 
-        await System.Threading.Tasks.Task.Run(() =>
+        System.Threading.Tasks.Task.Run(() =>
         {
             DoSearch();
         });
