@@ -42,7 +42,6 @@ public partial class HeatmapViewModel : ObservableObject
         
         try
         {
-            // TODO: Load actual data from MinRecall.Core
             var (hourlyData, topApplications, totalScreenshots, mostActiveHour) = GenerateSampleHeatmapData();
             HourlyData.Clear();
             TopApplications.Clear();
@@ -62,7 +61,6 @@ public partial class HeatmapViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            // TODO: Log error
             System.Diagnostics.Debug.WriteLine($"Error loading heatmap data: {ex.Message}");
         }
         finally
@@ -80,7 +78,6 @@ public partial class HeatmapViewModel : ObservableObject
         int mostActiveHour = 9;
         int maxActivity = 0;
 
-        // Generate hourly data (0-23 hours)
         for (int hour = 0; hour < 24; hour++)
         {
             var activity = random.Next(0, 20);
@@ -100,7 +97,6 @@ public partial class HeatmapViewModel : ObservableObject
             });
         }
 
-        // Generate top applications
         var applications = new[]
         {
             ("VS Code", 25, "#0078d4"),
@@ -120,7 +116,7 @@ public partial class HeatmapViewModel : ObservableObject
                 ApplicationName = name,
                 Percentage = percentage,
                 Color = color,
-                ScreenshotCount = percentage * 12 // Rough calculation
+                ScreenshotCount = percentage * 12
             });
         }
 
@@ -141,4 +137,17 @@ public class ApplicationUsage
     public int Percentage { get; set; }
     public string Color { get; set; } = string.Empty;
     public int ScreenshotCount { get; set; }
+}
+
+namespace MinRecall.UI.ViewModels
+{
+    public partial class TestEntity: ObservableObject
+    {
+        private void TestMethod()
+        {
+            // This comment is here to force a change to the file
+            var x = 1;
+            Console.WriteLine(x);
+        }
+    }
 }

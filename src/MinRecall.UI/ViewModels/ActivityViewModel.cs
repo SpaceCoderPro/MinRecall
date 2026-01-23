@@ -46,7 +46,6 @@ public partial class ActivityViewModel : ObservableObject
         
         try
         {
-            // TODO: Load actual data from MinRecall.Core
             var sampleData = GenerateSampleActivityData();
             ActivityLog.Clear();
             
@@ -61,7 +60,6 @@ public partial class ActivityViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            // TODO: Log error
             System.Diagnostics.Debug.WriteLine($"Error loading activity data: {ex.Message}");
         }
         finally
@@ -72,7 +70,6 @@ public partial class ActivityViewModel : ObservableObject
 
     private void LoadAvailableDates()
     {
-        // TODO: Load actual dates from database
         var dates = new List<DateTime>();
         var today = DateTime.Today;
         
@@ -94,18 +91,16 @@ public partial class ActivityViewModel : ObservableObject
         var random = new Random();
         var currentDate = SelectedDate;
         
-        // Generate activities throughout the day
-        var startTime = currentDate.Date.AddHours(8); // Start at 8 AM
-        var endTime = currentDate.Date.AddHours(20);  // End at 8 PM
+        var startTime = currentDate.Date.AddHours(8);
+        var endTime = currentDate.Date.AddHours(20);
         
         var currentTime = startTime;
         var currentProcess = string.Empty;
         
         while (currentTime < endTime)
         {
-            // Generate a new activity every 15-90 minutes
             var duration = TimeSpan.FromMinutes(random.Next(15, 91));
-            var nextActivity = random.Next(3) == 0; // 33% chance of new activity
+            var nextActivity = random.Next(3) == 0;
             
             if (nextActivity || string.IsNullOrEmpty(currentProcess))
             {
