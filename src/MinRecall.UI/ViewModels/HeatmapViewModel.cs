@@ -138,16 +138,3 @@ public class ApplicationUsage
     public string Color { get; set; } = string.Empty;
     public int ScreenshotCount { get; set; }
 }
-
-namespace MinRecall.UI.ViewModels
-{
-    public partial class TestEntity: ObservableObject
-    {
-        private void TestMethod()
-        {
-            // This comment is here to force a change to the file
-            var x = 1;
-            Console.WriteLine(x);
-        }
-    }
-}
