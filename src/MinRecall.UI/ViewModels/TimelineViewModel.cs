@@ -1,13 +1,18 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using MinRecall.Core.Models;
+using MinRecall.UI.Services;
 using System.Collections.ObjectModel;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace MinRecall.UI.ViewModels;
 
 public partial class TimelineViewModel : ObservableObject
 {
+    private readonly DatabaseService _database;
+
     [ObservableProperty]
     private DateTime _selectedDate = DateTime.Today;
 
@@ -20,8 +25,12 @@ public partial class TimelineViewModel : ObservableObject
     [ObservableProperty]
     private bool _isLoading;
 
+    [ObservableProperty]
+    private string _statusMessage = string.Empty;
+
     public TimelineViewModel()
     {
+        _database = DatabaseService.Instance;
         LoadTimelineData();
     }
 
@@ -38,69 +47,42 @@ public partial class TimelineViewModel : ObservableObject
     private async void LoadTimelineData()
     {
         IsLoading = true;
+        StatusMessage = "Loading timeline...";
         
         try
         {
-            // TODO: Load actual data from MinRecall.Core
-            // For now, create sample data
-            var sampleData = GenerateSampleTimelineData();
-            TimelineItems.Clear();
-            
-            foreach (var item in sampleData)
+            await Task.Run(() =>
             {
-                TimelineItems.Add(item);
-            }
+                var startOfDay = SelectedDate.Date;
+                var endOfDay = startOfDay.AddDays(1).AddSeconds(-1);
+                
+                var screenshots = _database.GetScreenshots(
+                    start: startOfDay,
+                    end: endOfDay,
+                    processName: null,
+                    limit: 500
+                );
+                
+                // Update UI on UI thread
+                Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+                {
+                    TimelineItems.Clear();
+                    foreach (var item in screenshots)
+                    {
+                        TimelineItems.Add(item);
+                    }
+                    StatusMessage = $"Loaded {screenshots.Count} screenshots";
+                });
+            });
         }
         catch (Exception ex)
         {
-            // TODO: Log error
+            StatusMessage = $"Error loading timeline: {ex.Message}";
             System.Diagnostics.Debug.WriteLine($"Error loading timeline data: {ex.Message}");
         }
         finally
         {
             IsLoading = false;
         }
-    }
-
-    private IEnumerable<Screenshot> GenerateSampleTimelineData()
-    {
-        var items = new List<Screenshot>();
-        var random = new Random();
-        
-        for (int i = 0; i < 20; i++)
-        {
-            var time = SelectedDate.AddHours(random.Next(8, 18)).AddMinutes(random.Next(0, 60));
-            items.Add(new Screenshot
-            {
-                Id = random.Next(1000, 9999),
-                Timestamp = time,
-                ProcessName = random.Next(2) == 0 ? "VS Code" : "Chrome",
-                WindowTitle = GetRandomWindowTitle(),
-                FilePath = $"/Assets/Images/sample_{i % 5}.png",
-                FileSize = random.Next(500, 2000),
-                Width = 1920,
-                Height = 1080,
-                Status = ScreenshotStatus.Optimized
-            });
-        }
-        
-        return items.OrderByDescending(x => x.Timestamp);
-    }
-
-    private string GetRandomWindowTitle()
-    {
-        var titles = new[]
-        {
-            "Main Program - Development",
-            "Dashboard - Analytics",
-            "Documentation - API Reference", 
-            "Code Review - Pull Request #123",
-            "Meeting Notes - Weekly Standup",
-            "Database Schema - Users Table",
-            "Settings - Application Configuration",
-            "Logs - System Messages"
-        };
-        
-        return titles[new Random().Next(titles.Length)];
     }
 }

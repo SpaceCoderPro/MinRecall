@@ -116,24 +116,8 @@
             </Border>
             
             <!-- Content Frame -->
-            <Border Grid.Column="1" Background="#0f0f0f" Padding="32,24">
-                <StackPanel>
-                    <TextBlock Text="Timeline" FontSize="28" FontWeight="Bold" Foreground="#ffffff" 
-                               Margin="0,0,0,8"/>
-                    <TextBlock Text="Browse your screenshot history in chronological order" 
-                               FontSize="14" Foreground="#888888" Margin="0,0,0,24"/>
-                    
-                    <!-- Sample Content -->
-                    <Border Background="#1a1a1a" CornerRadius="16" Padding="20" 
-                            BorderBrush="#2a2a2a" BorderThickness="1">
-                        <StackPanel>
-                            <TextBlock Text="Welcome to MinRecall!" FontSize="18" FontWeight="Bold" 
-                                       Foreground="#ffffff" Margin="0,0,0,8"/>
-                            <TextBlock Text="Your AI-powered screenshot recall system is ready." 
-                                       Foreground="#888888"/>
-                        </StackPanel>
-                    </Border>
-                </StackPanel>
+            <Border x:Name="ContentFrame" Grid.Column="1" Background="#0f0f0f" Padding="32,24">
+                <!-- Dynamic content will be loaded here -->
             </Border>
         </Grid>
     </Grid>
