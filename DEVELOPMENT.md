@@ -56,7 +56,7 @@ MinRecall/
 │   │   ├── OptimizationWorker.cs   # Main service
 │   │   └── Program.cs              # Entry point
 │   │
-│   └── MinRecall.UI/               # WinUI 3 application
+│   └── MinRecall.UI/               # Avalonia application
 │       ├── Pages/                  # UI pages
 │       ├── Controls/               # Custom controls
 │       ├── Styles/                 # XAML styles
@@ -314,7 +314,7 @@ test: add unit tests for delta calculator
 ## Resources
 
 ### Documentation
-- [WinUI 3 Docs](https://docs.microsoft.com/en-us/windows/apps/winui/)
+- [Avalonia Docs](https://docs.avaloniaui.net/)
 - [.NET 8.0 Docs](https://docs.microsoft.com/en-us/dotnet/)
 - [SQLite FTS5](https://www.sqlite.org/fts5.html)
 

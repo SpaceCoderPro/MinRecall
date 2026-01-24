@@ -25,4 +25,15 @@
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />
   </ItemGroup>
+
+  <PropertyGroup>
+    <GenerateAppInstallerFile>false</GenerateAppInstallerFile>
+    <AppxPackageSigningEnabled>true</AppxPackageSigningEnabled>
+    <AppxPackageUseNonQualifiedResources>false</AppxPackageUseNonQualifiedResources>
+    <GenerateTestArtifacts>true</GenerateTestArtifacts>
+    <AppxBundle>Always</AppxBundle>
+    <AppxBundlePlatforms>x64</AppxBundlePlatforms>
+    <HoursBetweenUpdateChecks>1</HoursBetweenUpdateChecks>
+    <PackageCertificateThumbprint></PackageCertificateThumbprint>
+  </PropertyGroup>
 </Project>
