@@ -17,7 +17,7 @@ A complete Windows Recall-style screenshot application for Windows 10/11. Captur
 - 🔍 **Full-Text Search**: Search through window titles and OCR text
 
 ### Beautiful UI
-- 🖥️ **WinUI 3**: Modern Windows 11 native feel
+- 🖥️ **Avalonia UI**: Cross-platform modern interface
 - 📅 **Timeline View**: Visual timeline of your activity
 - 🔥 **Activity Heatmap**: See where you spend your time
 - 🔎 **Instant Search**: Find anything in milliseconds
@@ -93,7 +93,7 @@ Access all settings from the gear icon:
 MinRecall/
 ├── MinRecall.CaptureService/    # Background screenshot capture
 ├── MinRecall.Optimizer/         # Compression & OCR processing
-├── MinRecall.UI/               # WinUI 3 user interface
+├── MinRecall.UI/               # Avalonia user interface
 └── MinRecall.Core/             # Shared database & models
 ```
 
@@ -114,7 +114,7 @@ MinRecall/
 - Updates database indexes
 - Auto-cleanup old data
 
-#### UI Application (WinUI 3)
+#### UI Application (Avalonia)
 - Timeline viewer with thumbnails
 - Activity heatmap visualization
 - Full-text search (FTS5)
@@ -241,7 +241,7 @@ MinRecall is designed with privacy in mind:
 ## Acknowledgments
 
 - Inspired by Windows Recall feature
-- Built with Microsoft WinUI 3
+- Built with Avalonia UI framework
 - OCR powered by Windows.Media.Ocr
 - Database: SQLite with FTS5
 

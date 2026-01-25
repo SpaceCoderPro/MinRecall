@@ -6,7 +6,7 @@ MinRecall consists of three main components working together to capture, optimiz
 
 1. **Capture Service** - Background Windows service for screenshot capture
 2. **Optimizer Service** - Background Windows service for compression and OCR
-3. **UI Application** - WinUI 3 desktop application for user interaction
+3. **UI Application** - Avalonia desktop application for user interaction
 
 ## System Architecture
 
@@ -107,12 +107,11 @@ OCR Extraction → Update FTS Index → Clean up PNG
 
 **Key Classes**:
 - `MainWindow` - Main application window with navigation
-- `TimelinePage` - Screenshot timeline view
-- `SearchPage` - Full-text search interface
-- `HeatmapPage` - Activity visualization
-- `ActivityPage` - Detailed activity log
-- `SettingsDialog` - Settings configuration
-- `ScreenshotViewer` - Image viewer dialog
+- `TimelineView` - Screenshot timeline view
+- `SearchView` - Full-text search interface
+- `HeatmapView` - Activity visualization
+- `ActivityView` - Detailed activity log
+- `SettingsView` - Settings configuration
 
 **Data Flow**:
 ```
@@ -307,9 +306,9 @@ For each 16x16 block:
 ### Production Deployment
 ```
 1. MSIX Package
-   - UI application (WinUI 3)
-   - Embedded services
-   - Auto-update support
+    - UI application (Avalonia)
+    - Embedded services
+    - Auto-update support
 
 2. Installation
    - Windows Services registered
