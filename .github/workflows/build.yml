@@ -2,7 +2,7 @@ name: Build MinRecall
 
 on:
   push:
-    branches: [ main, develop, feat-avalonia-migrate-winui3-modern-ui-gh-actions ]
+    branches: [ main, develop, feat-avalonia-migrate-winui3-modern-ui-gh-actions, feat/msix-recallapp-gh-actions ]
   pull_request:
     branches: [ main ]
   release:
@@ -65,7 +65,129 @@ jobs:
     - name: Publish UI
       run: dotnet publish src/MinRecall.UI/MinRecall.UI.csproj -c Release -r win-x64 --self-contained -o artifacts/UI
 
-    - name: Upload artifacts
+    - name: Prepare MSIX Package
+      id: prepare-msix
+      shell: pwsh
+      run: |
+        Write-Host "=== Preparing MSIX Package Structure ==="
+        
+        # Create MSIX staging directory
+        $msixDir = "./build/msix/RecallApp"
+        New-Item -ItemType Directory -Force -Path $msixDir | Out-Null
+        
+        Write-Host "Copying executables and dependencies..."
+        
+        # Copy all executables to MSIX staging
+        Copy-Item -Path "./artifacts/CaptureService/MinRecall.CaptureService.exe" -Destination "$msixDir/" -Force
+        Copy-Item -Path "./artifacts/Optimizer/MinRecall.Optimizer.exe" -Destination "$msixDir/" -Force
+        Copy-Item -Path "./artifacts/UI/MinRecall.UI.exe" -Destination "$msixDir/" -Force
+        
+        Write-Host "Copying DLLs..."
+        # Copy all DLLs (excluding PDBs and runtime for now)
+        Get-ChildItem "./artifacts/UI/*.dll" | ForEach-Object {
+          Copy-Item -Path $_.FullName -Destination "$msixDir/" -Force
+        }
+        Get-ChildItem "./artifacts/CaptureService/*.dll" | ForEach-Object {
+          Copy-Item -Path $_.FullName -Destination "$msixDir/" -Force -ErrorAction SilentlyContinue
+        }
+        Get-ChildItem "./artifacts/Optimizer/*.dll" | ForEach-Object {
+          Copy-Item -Path $_.FullName -Destination "$msixDir/" -Force -ErrorAction SilentlyContinue
+        }
+        
+        # Copy package manifest (must be named AppxManifest.xml)
+        Write-Host "Copying AppxManifest.xml..."
+        Copy-Item -Path "./src/MinRecall.UI/AppxManifest.xml" -Destination "$msixDir/AppxManifest.xml" -Force
+        
+        # Create Assets directory
+        Write-Host "Creating Assets directory..."
+        New-Item -ItemType Directory -Force -Path "$msixDir/Assets" | Out-Null
+        
+        # Create placeholder icons if they don't exist
+        $square150Path = "$msixDir/Assets/square150x150.png"
+        $square44Path = "$msixDir/Assets/square44x44.png"
+        
+        if (-not (Test-Path $square150Path) -or -not (Test-Path $square44Path)) {
+          Write-Host "Creating placeholder PNG icons..."
+          # 1x1 transparent PNG (minimal valid PNG)
+          $pngBytes = @(137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 6, 0, 0, 0, 31, 21, 196, 137, 0, 0, 0, 10, 73, 68, 65, 84, 120, 156, 63, 0, 1, 0, 0, 5, 0, 1, 13, 10, 45, 180, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130)
+          [System.IO.File]::WriteAllBytes($square150Path, [byte[]]$pngBytes)
+          [System.IO.File]::WriteAllBytes($square44Path, [byte[]]$pngBytes)
+          
+          Write-Host "Placeholder icons created at: $square150Path and $square44Path"
+        } else {
+          Write-Host "Icons already exist, using existing icons."
+        }
+        
+        Write-Host "=== Package structure prepared successfully ==="
+        Write-Host "MSIX staging directory contents:"
+        Get-ChildItem -Path $msixDir -Recurse | ForEach-Object {
+          Write-Host $_.FullName.Replace((Get-Location).Path, "")
+        }
+        
+    - name: Create MSIX Package
+      id: create-msix
+      shell: pwsh
+      run: |
+        Write-Host "=== Creating MSIX Package ==="
+        
+        # Set up paths
+        $msixDir = "./build/msix/RecallApp"
+        $outputMsix = "./artifacts/MinRecallApp.msix"
+        
+        # Find makeappx.exe from Windows SDK
+        $makeAppxPaths = @(
+          "C:\Program Files (x86)\Windows Kits\10\bin\x64\makeappx.exe",
+          "C:\Program Files (x86)\Windows Kits\10\bin\10.0.19041.0\x64\makeappx.exe",
+          "C:\Program Files (x86)\Windows Kits\10\bin\10.0.22621.0\x64\makeappx.exe"
+        )
+        
+        $makeAppxPath = $null
+        foreach ($path in $makeAppxPaths) {
+          if (Test-Path $path) {
+            $makeAppxPath = $path
+            Write-Host "Found makeappx.exe at: $makeAppxPath"
+            break
+          }
+        }
+        
+        if ($null -eq $makeAppxPath) {
+          Write-Warning "makeappx.exe not found in expected locations. Searching entire system..."
+          $makeAppxPath = Get-ChildItem -Path "C:\Program Files (x86)\Windows Kits" -Filter "makeappx.exe" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+          if ($makeAppxPath) {
+            $makeAppxPath = $makeAppxPath.FullName
+            Write-Host "Found makeappx.exe at: $makeAppxPath"
+          }
+        }
+        
+        if (Test-Path $makeAppxPath) {
+          Write-Host "Creating MSIX package using $makeAppxPath..."
+          & $makeAppxPath pack /d $msixDir /p $outputMsix /v
+          
+          if (Test-Path $outputMsix) {
+            Write-Host "✅ MSIX package created successfully at: $outputMsix"
+            Write-Host "Package size: $((Get-Item $outputMsix).Length) bytes"
+          } else {
+            Write-Error "❌ Failed to create MSIX package"
+            exit 1
+          }
+        } else {
+          Write-Warning "⚠️ MakeAppx tool not found. Creating ZIP archive as fallback."
+          
+          # Create ZIP as fallback
+          Compress-Archive -Path "$msixDir\*" -DestinationPath "./artifacts/MinRecallApp.zip" -Force
+          Write-Host "📦 ZIP archive created at: ./artifacts/MinRecallApp.zip"
+        }
+        
+    - name: List final artifacts
+      shell: pwsh
+      run: |
+        Write-Host "=== Final Artifacts ==="
+        Get-ChildItem "./artifacts" -Recurse | ForEach-Object {
+          $relativePath = $_.FullName.Replace((Get-Location).Path + "\artifacts\", "")
+          Write-Host "$($_.Length) bytes`t`t$relativePath"
+        }
+
+    - name: Upload MSIX and executables
       uses: actions/upload-artifact@v4
       with:
         name: MinRecall-Windows-x64

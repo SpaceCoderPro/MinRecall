@@ -1,17 +1,13 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using MinRecall.UI.Services;
 using System.Collections.ObjectModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace MinRecall.UI.ViewModels;
 
 public partial class ActivityViewModel : ObservableObject
 {
-    private readonly DatabaseService _database;
-
     [ObservableProperty]
     private DateTime _selectedDate = DateTime.Today;
 
@@ -35,7 +31,6 @@ public partial class ActivityViewModel : ObservableObject
 
     public ActivityViewModel()
     {
-        _database = DatabaseService.Instance;
         LoadActivityData();
         LoadAvailableDates();
     }
@@ -56,32 +51,12 @@ public partial class ActivityViewModel : ObservableObject
             
             foreach (var item in sampleData)
             {
-                var startOfDay = SelectedDate.Date;
-                var endOfDay = startOfDay.AddDays(1).AddSeconds(-1);
-                
-                var activityLogs = _database.GetActivityLog(startOfDay, endOfDay);
-                
-                Avalonia.Threading.Dispatcher.UIThread.Post(() =>
-                {
-                    ActivityLog.Clear();
-                    foreach (var log in activityLogs)
-                    {
-                        ActivityLog.Add(new ActivityLogItem
-                        {
-                            Id = Guid.NewGuid(),
-                            StartTime = log.StartTime,
-                            EndTime = log.EndTime,
-                            ProcessName = log.ProcessName,
-                            WindowTitle = log.WindowTitle,
-                            ScreenshotCount = log.ScreenshotCount
-                        });
-                    }
+                ActivityLog.Add(item);
+            }
 
-                    TotalActivities = ActivityLog.Count;
-                    TotalActiveTime = CalculateTotalActiveTime();
-                    MostUsedApplication = FindMostUsedApplication();
-                });
-            });
+            TotalActivities = ActivityLog.Count;
+            TotalActiveTime = CalculateTotalActiveTime();
+            MostUsedApplication = FindMostUsedApplication();
         }
         catch (Exception ex)
         {

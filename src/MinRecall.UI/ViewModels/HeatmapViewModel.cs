@@ -41,13 +41,22 @@ public partial class HeatmapViewModel : ObservableObject
         LoadHeatmapData();
     }
 
-    private async void LoadHeatmapData()
+    private void LoadHeatmapData()
     {
         IsLoading = true;
         
         try
         {
-            await Task.Run(() =>
+            var (hourlyData, topApplications, totalScreenshots, mostActiveHour) = GenerateSampleHeatmapData();
+            HourlyData.Clear();
+            TopApplications.Clear();
+            
+            foreach (var item in hourlyData)
+            {
+                HourlyData.Add(item);
+            }
+            
+            foreach (var app in topApplications)
             {
                 var startOfDay = SelectedDate.Date;
                 var endOfDay = startOfDay.AddDays(1).AddSeconds(-1);
@@ -112,8 +121,7 @@ public partial class HeatmapViewModel : ObservableObject
             });
         }
 
-        // Calculate percentages
-        if (maxActivity > 0)
+        var applications = new[]
         {
             foreach (var data in hourlyData)
             {
@@ -139,8 +147,8 @@ public partial class HeatmapViewModel : ObservableObject
             {
                 ApplicationName = process,
                 Percentage = percentage,
-                Color = colors[colorIndex % colors.Length],
-                ScreenshotCount = (int)(seconds / 60) // Rough estimate
+                Color = color,
+                ScreenshotCount = percentage * 12
             });
             colorIndex++;
         }
