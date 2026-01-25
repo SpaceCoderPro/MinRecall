@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial release of MinRecall
 - Screenshot capture service with adaptive quality
 - Background optimizer with keyframe + delta compression
-- WinUI 3 user interface
+- Avalonia user interface
 - Timeline view with screenshot browsing
 - Activity heatmap visualization
 - Full-text search (FTS5) for window titles and OCR text
