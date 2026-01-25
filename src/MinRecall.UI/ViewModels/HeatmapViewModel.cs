@@ -47,47 +47,35 @@ public partial class HeatmapViewModel : ObservableObject
         
         try
         {
-            var (hourlyData, topApplications, totalScreenshots, mostActiveHour) = GenerateSampleHeatmapData();
-            HourlyData.Clear();
-            TopApplications.Clear();
+            var startOfDay = SelectedDate.Date;
+            var endOfDay = startOfDay.AddDays(1).AddSeconds(-1);
             
-            foreach (var item in hourlyData)
-            {
-                HourlyData.Add(item);
-            }
+            // Get activity heatmap data
+            var heatmap = _database.GetActivityHeatmap(startOfDay, endOfDay);
             
-            foreach (var app in topApplications)
+            // Get all screenshots for the day
+            var screenshots = _database.GetScreenshots(startOfDay, endOfDay, null, 1000);
+            
+            Avalonia.Threading.Dispatcher.UIThread.Post(() =>
             {
-                var startOfDay = SelectedDate.Date;
-                var endOfDay = startOfDay.AddDays(1).AddSeconds(-1);
-                
-                // Get activity heatmap data
-                var heatmap = _database.GetActivityHeatmap(startOfDay, endOfDay);
-                
-                // Get all screenshots for the day
-                var screenshots = _database.GetScreenshots(startOfDay, endOfDay, null, 1000);
-                
-                Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+                // Process hourly data
+                var hourlyData = ProcessHourlyData(screenshots);
+                HourlyData.Clear();
+                foreach (var item in hourlyData)
                 {
-                    // Process hourly data
-                    var hourlyData = ProcessHourlyData(screenshots);
-                    HourlyData.Clear();
-                    foreach (var item in hourlyData)
-                    {
-                        HourlyData.Add(item);
-                    }
-                    
-                    // Process top applications
-                    var topApps = ProcessTopApplications(heatmap);
-                    TopApplications.Clear();
-                    foreach (var app in topApps)
-                    {
-                        TopApplications.Add(app);
-                    }
+                    HourlyData.Add(item);
+                }
+                
+                // Process top applications
+                var topApps = ProcessTopApplications(heatmap);
+                TopApplications.Clear();
+                foreach (var app in topApps)
+                {
+                    TopApplications.Add(app);
+                }
 
-                    TotalScreenshots = screenshots.Count;
-                    MostActiveHour = hourlyData.OrderByDescending(h => h.Activity).FirstOrDefault()?.Hour ?? 0;
-                });
+                TotalScreenshots = screenshots.Count;
+                MostActiveHour = hourlyData.OrderByDescending(h => h.Activity).FirstOrDefault()?.Hour ?? 0;
             });
         }
         catch (Exception ex)
@@ -121,7 +109,8 @@ public partial class HeatmapViewModel : ObservableObject
             });
         }
 
-        var applications = new[]
+        // Calculate percentages
+        if (maxActivity > 0)
         {
             foreach (var data in hourlyData)
             {
@@ -147,7 +136,7 @@ public partial class HeatmapViewModel : ObservableObject
             {
                 ApplicationName = process,
                 Percentage = percentage,
-                Color = color,
+                Color = colors[colorIndex % colors.Length],
                 ScreenshotCount = percentage * 12
             });
             colorIndex++;

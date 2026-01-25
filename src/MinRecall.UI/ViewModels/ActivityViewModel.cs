@@ -81,7 +81,7 @@ public partial class ActivityViewModel : ObservableObject
                     TotalActiveTime = CalculateTotalActiveTime();
                     MostUsedApplication = FindMostUsedApplication();
                 });
-            });
+            }
         }
         catch (Exception ex)
         {
