@@ -30,10 +30,6 @@
                           Square150x150Logo="Assets\square150x150.png"
                           Square44x44Logo="Assets\square44x44.png"
                           BackgroundColor="transparent" />
-      <Extensions>
-        <desktop:Extension Category="windows.fullTrustProcess" Executable="MinRecall.CaptureService.exe" />
-        <desktop:Extension Category="windows.fullTrustProcess" Executable="MinRecall.Optimizer.exe" />
-      </Extensions>
     </Application>
   </Applications>
   
