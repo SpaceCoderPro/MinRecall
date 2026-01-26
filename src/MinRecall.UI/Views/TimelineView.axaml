@@ -1,7 +1,12 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:converters="using:MinRecall.UI.Converters"
              x:Class="MinRecall.UI.Views.TimelineView"
              Background="Transparent">
+    
+    <UserControl.Resources>
+        <converters:FilePathToBitmapConverter x:Key="FilePathToBitmapConverter"/>
+    </UserControl.Resources>
     
     <Grid Margin="32">
         <Grid.RowDefinitions>
@@ -9,19 +14,56 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         
-        <!-- Date Picker -->
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="16" Margin="0,0,0,24">
-            <CalendarDatePicker x:Name="DatePicker" 
-                               SelectedDate="{Binding SelectedDate}" 
-                               Background="#0A0A0A"
-                               BorderBrush="#1A1A1A"
-                               Foreground="#FFF"
-                               CornerRadius="8"/>
-            <TextBlock Text="{Binding StatusMessage}" 
+        <!-- Header with Date Picker and Stats -->
+        <Grid Grid.Row="0" Margin="0,0,0,32">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            
+            <!-- Date Picker -->
+            <Border Grid.Column="0" 
+                   Background="#0A0A0A" 
+                   BorderBrush="#1A1A1A"
+                   BorderThickness="1"
+                   CornerRadius="10"
+                   Padding="12,8">
+                <StackPanel Orientation="Horizontal" Spacing="12">
+                    <TextBlock Text="📅" FontSize="16" VerticalAlignment="Center"/>
+                    <CalendarDatePicker x:Name="DatePicker" 
+                                       SelectedDate="{Binding SelectedDate}" 
+                                       Background="Transparent"
+                                       BorderThickness="0"
+                                       Foreground="#FFF"/>
+                </StackPanel>
+            </Border>
+            
+            <!-- Status Message -->
+            <TextBlock Grid.Column="1"
+                      Text="{Binding StatusMessage}" 
                       Foreground="#666" 
                       FontSize="13"
-                      VerticalAlignment="Center"/>
-        </StackPanel>
+                      VerticalAlignment="Center"
+                      Margin="20,0,0,0"/>
+            
+            <!-- Screenshot Count -->
+            <Border Grid.Column="2"
+                   Background="#0A0A0A"
+                   BorderBrush="#1A1A1A"
+                   BorderThickness="1"
+                   CornerRadius="10"
+                   Padding="16,8">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <TextBlock Text="📸" FontSize="16" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding TimelineItems.Count, StringFormat='{}{0} Screenshots'}" 
+                              Foreground="#00E5FF" 
+                              FontSize="13"
+                              FontWeight="SemiBold"
+                              VerticalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+        </Grid>
         
         <!-- Screenshots Grid -->
         <ScrollViewer Grid.Row="1" 
@@ -41,22 +83,23 @@
                                BorderThickness="1"
                                CornerRadius="12" 
                                Margin="8"
-                               Width="320"
-                               Height="240"
+                               Width="340"
+                               Height="260"
                                Cursor="Hand"
                                Classes="screenshot-card">
                             <Border.Styles>
                                 <Style Selector="Border.screenshot-card">
                                     <Setter Property="Transitions">
                                         <Transitions>
-                                            <DoubleTransition Property="Opacity" Duration="0:0:0.15"/>
-                                            <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.15"/>
+                                            <DoubleTransition Property="Opacity" Duration="0:0:0.2"/>
+                                            <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.2"/>
                                         </Transitions>
                                     </Setter>
                                 </Style>
                                 <Style Selector="Border.screenshot-card:pointerover">
                                     <Setter Property="BorderBrush" Value="#00E5FF"/>
-                                    <Setter Property="RenderTransform" Value="scale(1.02)"/>
+                                    <Setter Property="RenderTransform" Value="scale(1.03)"/>
+                                    <Setter Property="Opacity" Value="1"/>
                                 </Style>
                             </Border.Styles>
                             
@@ -67,38 +110,104 @@
                                 </Grid.RowDefinitions>
                                 
                                 <!-- Screenshot Image -->
-                                <Border Grid.Row="0" Background="#000" CornerRadius="12,12,0,0" ClipToBounds="True">
-                                    <Panel>
-                                        <!-- Image -->
-                                        <Image Source="{Binding FilePath}" 
+                                <Border Grid.Row="0" 
+                                       Background="#000" 
+                                       CornerRadius="12,12,0,0" 
+                                       ClipToBounds="True">
+                                    <Grid>
+                                        <!-- Actual Screenshot Image -->
+                                        <Image Source="{Binding FilePath, Converter={StaticResource FilePathToBitmapConverter}}" 
                                               Stretch="UniformToFill"
-                                              IsVisible="{Binding !!FilePath}"/>
+                                              HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
                                         
-                                        <!-- Placeholder if no image -->
-                                        <TextBlock Text="📷" 
-                                                  FontSize="48" 
-                                                  HorizontalAlignment="Center"
-                                                  VerticalAlignment="Center"
-                                                  Foreground="#333"
-                                                  IsVisible="{Binding !FilePath}"/>
-                                    </Panel>
+                                        <!-- Loading/Error Placeholder -->
+                                        <Border Background="#0A0A0A"
+                                               IsVisible="{Binding !FilePath}">
+                                            <StackPanel VerticalAlignment="Center" 
+                                                       HorizontalAlignment="Center"
+                                                       Spacing="8">
+                                                <TextBlock Text="📷" 
+                                                          FontSize="48" 
+                                                          HorizontalAlignment="Center"
+                                                          Foreground="#333"/>
+                                                <TextBlock Text="Loading..." 
+                                                          FontSize="11" 
+                                                          HorizontalAlignment="Center"
+                                                          Foreground="#555"/>
+                                            </StackPanel>
+                                        </Border>
+                                        
+                                        <!-- Hover Overlay -->
+                                        <Border Background="#00000080"
+                                               Opacity="0"
+                                               Classes="hover-overlay">
+                                            <Border.Styles>
+                                                <Style Selector="Border.hover-overlay">
+                                                    <Setter Property="Transitions">
+                                                        <Transitions>
+                                                            <DoubleTransition Property="Opacity" Duration="0:0:0.2"/>
+                                                        </Transitions>
+                                                    </Setter>
+                                                </Style>
+                                            </Border.Styles>
+                                            <StackPanel VerticalAlignment="Center" 
+                                                       HorizontalAlignment="Center"
+                                                       Spacing="12">
+                                                <TextBlock Text="👁" 
+                                                          FontSize="32" 
+                                                          HorizontalAlignment="Center"/>
+                                                <TextBlock Text="Click to view" 
+                                                          FontSize="13" 
+                                                          HorizontalAlignment="Center"
+                                                          Foreground="#FFF"
+                                                          FontWeight="Medium"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </Grid>
                                 </Border>
                                 
-                                <!-- Info -->
-                                <StackPanel Grid.Row="1" Margin="12,10" Spacing="4">
-                                    <TextBlock Text="{Binding Timestamp, StringFormat='{}{0:HH:mm:ss}'}" 
-                                              FontSize="14" 
-                                              Foreground="#00E5FF"
-                                              FontWeight="SemiBold"/>
-                                    <TextBlock Text="{Binding WindowTitle}" 
-                                              FontSize="12" 
-                                              Foreground="#AAA"
-                                              TextTrimming="CharacterEllipsis"
-                                              MaxLines="1"/>
-                                    <TextBlock Text="{Binding ProcessName}" 
-                                              FontSize="11" 
-                                              Foreground="#666"/>
-                                </StackPanel>
+                                <!-- Info Panel -->
+                                <Border Grid.Row="1"
+                                       Background="#0A0A0A"
+                                       CornerRadius="0,0,12,12"
+                                       Padding="14,12">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        
+                                        <!-- Time -->
+                                        <TextBlock Grid.Row="0"
+                                                  Text="{Binding Timestamp, StringFormat='{}{0:HH:mm:ss}'}" 
+                                                  FontSize="15" 
+                                                  Foreground="#00E5FF"
+                                                  FontWeight="SemiBold"
+                                                  Margin="0,0,0,6"/>
+                                        
+                                        <!-- Window Title -->
+                                        <TextBlock Grid.Row="1"
+                                                  Text="{Binding WindowTitle}" 
+                                                  FontSize="12" 
+                                                  Foreground="#CCC"
+                                                  TextTrimming="CharacterEllipsis"
+                                                  MaxLines="1"
+                                                  Margin="0,0,0,4"/>
+                                        
+                                        <!-- Process Name with Icon -->
+                                        <StackPanel Grid.Row="2" 
+                                                   Orientation="Horizontal" 
+                                                   Spacing="6">
+                                            <TextBlock Text="⚙" FontSize="10" Foreground="#555" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding ProcessName}" 
+                                                      FontSize="11" 
+                                                      Foreground="#666"
+                                                      VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
                             </Grid>
                         </Border>
                     </DataTemplate>
@@ -107,31 +216,70 @@
         </ScrollViewer>
         
         <!-- Empty State -->
-        <StackPanel Grid.Row="1" 
-                   VerticalAlignment="Center" 
-                   HorizontalAlignment="Center"
-                   Spacing="16"
-                   IsVisible="{Binding !TimelineItems.Count}">
-            <TextBlock Text="📸" FontSize="64" HorizontalAlignment="Center" Opacity="0.3"/>
-            <TextBlock Text="No screenshots yet" 
-                      FontSize="18" 
-                      Foreground="#666"
-                      HorizontalAlignment="Center"
-                      FontWeight="Medium"/>
-            <TextBlock Text="Start the capture service to begin recording" 
-                      FontSize="13" 
-                      Foreground="#444"
-                      HorizontalAlignment="Center"/>
-            <Button Content="Open Settings" 
-                   Background="#00E5FF"
-                   Foreground="#000"
-                   BorderThickness="0"
-                   Padding="16,8"
-                   CornerRadius="8"
-                   FontSize="13"
-                   Cursor="Hand"
-                   HorizontalAlignment="Center"
-                   Margin="0,8,0,0"/>
-        </StackPanel>
+        <Border Grid.Row="1"
+               IsVisible="{Binding !TimelineItems.Count}"
+               Background="#05050580"
+               CornerRadius="16"
+               Padding="40">
+            <StackPanel VerticalAlignment="Center" 
+                       HorizontalAlignment="Center"
+                       Spacing="20"
+                       MaxWidth="500">
+                <!-- Icon -->
+                <Border Background="#0A0A0A"
+                       Width="100"
+                       Height="100"
+                       CornerRadius="50"
+                       HorizontalAlignment="Center">
+                    <TextBlock Text="📸" 
+                              FontSize="50" 
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Center"/>
+                </Border>
+                
+                <!-- Title -->
+                <TextBlock Text="No screenshots yet" 
+                          FontSize="24" 
+                          Foreground="#FFF"
+                          HorizontalAlignment="Center"
+                          FontWeight="SemiBold"/>
+                
+                <!-- Description -->
+                <TextBlock TextWrapping="Wrap"
+                          TextAlignment="Center"
+                          FontSize="14"
+                          Foreground="#666"
+                          LineHeight="22">
+                    <Run Text="MinRecall will automatically capture your screen activity."/>
+                    <LineBreak/>
+                    <Run Text="Make sure the Capture Service is running to start recording."/>
+                </TextBlock>
+                
+                <!-- Action Buttons -->
+                <StackPanel Orientation="Horizontal" 
+                           Spacing="12"
+                           HorizontalAlignment="Center"
+                           Margin="0,12,0,0">
+                    <Button Content="📋 Check Services" 
+                           Background="#0A0A0A"
+                           Foreground="#FFF"
+                           BorderBrush="#1A1A1A"
+                           BorderThickness="1"
+                           Padding="20,12"
+                           CornerRadius="8"
+                           FontSize="13"
+                           Cursor="Hand"/>
+                    <Button Content="⚙ Settings" 
+                           Background="#00E5FF"
+                           Foreground="#000"
+                           BorderThickness="0"
+                           Padding="20,12"
+                           CornerRadius="8"
+                           FontSize="13"
+                           FontWeight="SemiBold"
+                           Cursor="Hand"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
     </Grid>
 </UserControl>

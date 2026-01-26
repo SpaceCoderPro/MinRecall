@@ -1,9 +1,14 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:converters="using:MinRecall.UI.Converters"
              x:Class="MinRecall.UI.Views.SearchView"
              Background="Transparent">
     
-    <Grid Margin="24">
+    <UserControl.Resources>
+        <converters:FilePathToBitmapConverter x:Key="FilePathToBitmapConverter"/>
+    </UserControl.Resources>
+    
+    <Grid Margin="32">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -11,42 +16,83 @@
         </Grid.RowDefinitions>
         
         <!-- Search Input -->
-        <StackPanel Grid.Row="0" Spacing="12" Margin="0,0,0,20">
-            <TextBox x:Name="SearchInput" 
-                    Text="{Binding SearchQuery, Mode=TwoWay}"
-                    Watermark="Search by text, app name, or window title..."
-                    FontSize="14"
-                    Padding="16,12"
-                    Background="#1A1A1A"
-                    BorderBrush="#2A2A2A"
-                    BorderThickness="1"
-                    Foreground="#E0E0E0"
-                    CornerRadius="8"
-                    KeyDown="SearchInput_KeyDown"/>
-            
-            <StackPanel Orientation="Horizontal" Spacing="8">
-                <TextBlock Text="{Binding ResultCount, StringFormat='{}Found {0} results'}" 
-                          Foreground="#888" 
-                          FontSize="13"
+        <Border Grid.Row="0" 
+               Background="#0A0A0A" 
+               BorderBrush="#1A1A1A"
+               BorderThickness="1"
+               CornerRadius="12"
+               Margin="0,0,0,20">
+            <Grid Margin="4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <TextBlock Grid.Column="0" 
+                          Text="🔍" 
+                          FontSize="18" 
                           VerticalAlignment="Center"
-                          IsVisible="{Binding HasSearched}"/>
-                <TextBlock Text="{Binding SearchDuration, StringFormat='{}({0:F2}s)'}" 
-                          Foreground="#666" 
-                          FontSize="11"
-                          VerticalAlignment="Center"
-                          IsVisible="{Binding HasSearched}"/>
-            </StackPanel>
-        </StackPanel>
+                          Margin="12,0,8,0"
+                          Foreground="#555"/>
+                
+                <TextBox x:Name="SearchInput" 
+                        Grid.Column="1"
+                        Text="{Binding SearchQuery, Mode=TwoWay}"
+                        Watermark="Search by text, window title, or application..."
+                        FontSize="14"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Foreground="#FFF"
+                        Padding="8,12"
+                        KeyDown="SearchInput_KeyDown"/>
+                
+                <Button Grid.Column="2"
+                       Content="Search"
+                       Background="#00E5FF"
+                       Foreground="#000"
+                       BorderThickness="0"
+                       Padding="20,10"
+                       CornerRadius="8"
+                       FontSize="13"
+                       FontWeight="SemiBold"
+                       Cursor="Hand"
+                       Margin="4"/>
+            </Grid>
+        </Border>
         
-        <!-- Loading State -->
-        <StackPanel Grid.Row="1" 
-                   Orientation="Horizontal" 
-                   Spacing="8"
-                   Margin="0,0,0,20"
+        <!-- Search Stats -->
+        <Grid Grid.Row="1" Margin="0,0,0,20" IsVisible="{Binding HasSearched}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            
+            <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                <TextBlock Text="{Binding ResultCount, StringFormat='{}Found {0} results'}" 
+                          Foreground="#00E5FF" 
+                          FontSize="14"
+                          FontWeight="SemiBold"
+                          VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding SearchDuration, StringFormat='{}in {0:F2}s'}" 
+                          Foreground="#666" 
+                          FontSize="12"
+                          VerticalAlignment="Center"/>
+            </StackPanel>
+            
+            <Border Grid.Column="1"
+                   Background="#0A0A0A"
+                   BorderBrush="#1A1A1A"
+                   BorderThickness="1"
+                   CornerRadius="8"
+                   Padding="12,6"
                    IsVisible="{Binding IsSearching}">
-            <TextBlock Text="⏳" FontSize="16"/>
-            <TextBlock Text="Searching..." Foreground="#888" FontSize="13"/>
-        </StackPanel>
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <TextBlock Text="⏳" FontSize="14" VerticalAlignment="Center"/>
+                    <TextBlock Text="Searching..." Foreground="#888" FontSize="12" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+        </Grid>
         
         <!-- Results Grid -->
         <ScrollViewer Grid.Row="2" 
@@ -61,16 +107,27 @@
                 
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Border Background="#111" 
-                               CornerRadius="8" 
+                        <Border Background="#0A0A0A" 
+                               BorderBrush="#1A1A1A"
+                               BorderThickness="1"
+                               CornerRadius="12" 
                                Margin="8"
-                               Width="280"
-                               Height="180"
+                               Width="340"
+                               Height="260"
                                Cursor="Hand"
                                Classes="screenshot-card">
                             <Border.Styles>
+                                <Style Selector="Border.screenshot-card">
+                                    <Setter Property="Transitions">
+                                        <Transitions>
+                                            <DoubleTransition Property="Opacity" Duration="0:0:0.2"/>
+                                            <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.2"/>
+                                        </Transitions>
+                                    </Setter>
+                                </Style>
                                 <Style Selector="Border.screenshot-card:pointerover">
-                                    <Setter Property="Background" Value="#1A1A1A"/>
+                                    <Setter Property="BorderBrush" Value="#00E5FF"/>
+                                    <Setter Property="RenderTransform" Value="scale(1.03)"/>
                                 </Style>
                             </Border.Styles>
                             
@@ -80,25 +137,44 @@
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
                                 
-                                <Border Grid.Row="0" Background="#0A0A0A" CornerRadius="8,8,0,0" ClipToBounds="True">
-                                    <Image Source="{Binding FilePath}" 
+                                <Border Grid.Row="0" Background="#000" CornerRadius="12,12,0,0" ClipToBounds="True">
+                                    <Image Source="{Binding FilePath, Converter={StaticResource FilePathToBitmapConverter}}" 
                                           Stretch="UniformToFill"/>
                                 </Border>
                                 
-                                <StackPanel Grid.Row="1" Margin="12" Spacing="4">
-                                    <TextBlock Text="{Binding Timestamp, StringFormat='{}{0:MMM dd, HH:mm:ss}'}" 
-                                              FontSize="12" 
-                                              Foreground="#00D9FF"
-                                              FontWeight="Medium"/>
-                                    <TextBlock Text="{Binding WindowTitle}" 
-                                              FontSize="11" 
-                                              Foreground="#888"
-                                              TextTrimming="CharacterEllipsis"
-                                              MaxLines="1"/>
-                                    <TextBlock Text="{Binding ProcessName}" 
-                                              FontSize="10" 
-                                              Foreground="#666"/>
-                                </StackPanel>
+                                <Border Grid.Row="1"
+                                       Background="#0A0A0A"
+                                       CornerRadius="0,0,12,12"
+                                       Padding="14,12">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        
+                                        <TextBlock Grid.Row="0"
+                                                  Text="{Binding Timestamp, StringFormat='{}{0:MMM dd, HH:mm:ss}'}" 
+                                                  FontSize="15" 
+                                                  Foreground="#00E5FF"
+                                                  FontWeight="SemiBold"
+                                                  Margin="0,0,0,6"/>
+                                        <TextBlock Grid.Row="1"
+                                                  Text="{Binding WindowTitle}" 
+                                                  FontSize="12" 
+                                                  Foreground="#CCC"
+                                                  TextTrimming="CharacterEllipsis"
+                                                  MaxLines="1"
+                                                  Margin="0,0,0,4"/>
+                                        <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="6">
+                                            <TextBlock Text="⚙" FontSize="10" Foreground="#555" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding ProcessName}" 
+                                                      FontSize="11" 
+                                                      Foreground="#666"
+                                                      VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
                             </Grid>
                         </Border>
                     </DataTemplate>
@@ -107,22 +183,45 @@
         </ScrollViewer>
         
         <!-- Empty State -->
-        <StackPanel Grid.Row="2" 
-                   VerticalAlignment="Center" 
-                   HorizontalAlignment="Center"
-                   Spacing="12"
-                   IsVisible="{Binding !SearchResults.Count}">
-            <TextBlock Text="🔍" FontSize="48" HorizontalAlignment="Center"/>
-            <TextBlock Text="No results found" 
-                      FontSize="16" 
-                      Foreground="#888"
-                      HorizontalAlignment="Center"
-                      IsVisible="{Binding HasSearched}"/>
-            <TextBlock Text="Enter a search query to find screenshots" 
-                      FontSize="16" 
-                      Foreground="#888"
-                      HorizontalAlignment="Center"
-                      IsVisible="{Binding !HasSearched}"/>
-        </StackPanel>
+        <Border Grid.Row="2" 
+               IsVisible="{Binding !SearchResults.Count}"
+               Background="#05050580"
+               CornerRadius="16"
+               Padding="40">
+            <StackPanel VerticalAlignment="Center" 
+                       HorizontalAlignment="Center"
+                       Spacing="20"
+                       MaxWidth="500">
+                <Border Background="#0A0A0A"
+                       Width="100"
+                       Height="100"
+                       CornerRadius="50"
+                       HorizontalAlignment="Center">
+                    <TextBlock Text="🔍" 
+                              FontSize="50" 
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Center"/>
+                </Border>
+                
+                <TextBlock Text="{Binding HasSearched, Converter={x:Static BoolConverters.Not}}" FontSize="24" Foreground="#FFF" HorizontalAlignment="Center" FontWeight="SemiBold">
+                    <TextBlock.Styles>
+                        <Style Selector="TextBlock">
+                            <Setter Property="Text" Value="Start searching"/>
+                        </Style>
+                        <Style Selector="TextBlock[Tag=searched]">
+                            <Setter Property="Text" Value="No results found"/>
+                        </Style>
+                    </TextBlock.Styles>
+                </TextBlock>
+                
+                <TextBlock TextWrapping="Wrap"
+                          TextAlignment="Center"
+                          FontSize="14"
+                          Foreground="#666"
+                          LineHeight="22">
+                    <Run Text="Enter a search query above to find screenshots by text content, window title, or application name."/>
+                </TextBlock>
+            </StackPanel>
+        </Border>
     </Grid>
 </UserControl>
