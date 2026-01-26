@@ -133,17 +133,40 @@ public class OptimizationWorker : BackgroundService
     {
         try
         {
-            // Compress to AVIF (or JPEG as fallback)
-            var compressedData = await AvifCompressor.CompressToAvifAsync(bitmap, quality: 85);
-
-            if (compressedData == null)
+            byte[]? compressedData = null;
+            string extension = ".jpg";
+            
+            try
             {
-                _logger.LogWarning("Failed to compress keyframe {Id}", screenshot.Id);
+                // Try to compress to AVIF/WebP (with fallback to JPEG)
+                compressedData = await AvifCompressor.CompressToAvifAsync(bitmap, quality: 85);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "AVIF compression failed for {Id}, using JPEG fallback", screenshot.Id);
+            }
+
+            // If AVIF/WebP compression failed, use standard JPEG compression
+            if (compressedData == null || compressedData.Length == 0)
+            {
+                _logger.LogDebug("Using JPEG compression for keyframe {Id}", screenshot.Id);
+                using var ms = new MemoryStream();
+                bitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
+                compressedData = ms.ToArray();
+            }
+
+            if (compressedData == null || compressedData.Length == 0)
+            {
+                _logger.LogError("Failed to compress keyframe {Id} - no data produced", screenshot.Id);
+                _database.UpdateScreenshotStatus(screenshot.Id, ScreenshotStatus.Failed);
                 return;
             }
 
             // Save compressed keyframe
-            var optimizedPath = screenshot.FilePath.Replace(".png", "_optimized.jpg", StringComparison.OrdinalIgnoreCase);
+            var directory = Path.GetDirectoryName(screenshot.FilePath);
+            var filename = Path.GetFileNameWithoutExtension(screenshot.FilePath);
+            var optimizedPath = Path.Combine(directory!, $"{filename}_optimized{extension}");
+            
             await File.WriteAllBytesAsync(optimizedPath, compressedData);
 
             var fileInfo = new FileInfo(optimizedPath);
@@ -165,13 +188,14 @@ public class OptimizationWorker : BackgroundService
             command.Parameters.AddWithValue("@id", screenshot.Id);
             command.ExecuteNonQuery();
 
-            _logger.LogDebug("Optimized keyframe {Id}: {OriginalSize} -> {NewSize}",
-                screenshot.Id, screenshot.FileSize, fileInfo.Length);
+            _logger.LogInformation("Optimized keyframe {Id}: {OriginalSize} -> {NewSize} bytes ({Percent:F1}% reduction)",
+                screenshot.Id, screenshot.FileSize, fileInfo.Length, 
+                (1 - (double)fileInfo.Length / screenshot.FileSize) * 100);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error processing keyframe {Id}", screenshot.Id);
-            throw;
+            _database.UpdateScreenshotStatus(screenshot.Id, ScreenshotStatus.Failed);
         }
     }
 

@@ -1,5 +1,6 @@
 using MinRecall.Core.Database;
 using MinRecall.Core.Models;
+using System;
 
 namespace MinRecall.UI.Services;
 
@@ -19,12 +20,27 @@ public class DatabaseService
                 {
                     if (_instance == null)
                     {
-                        var dbPath = Path.Combine(
-                            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                            "MinRecall",
-                            "minrecall.db"
-                        );
-                        _instance = new DatabaseService(dbPath);
+                        try
+                        {
+                            var dbPath = Path.Combine(
+                                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                                "MinRecall",
+                                "minrecall.db"
+                            );
+                            Console.WriteLine($"[DEBUG] DatabaseService initializing with path: {dbPath}");
+                            
+                            _instance = new DatabaseService(dbPath);
+                            
+                            Console.WriteLine("[DEBUG] DatabaseService instance created successfully");
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"[ERROR] Failed to create DatabaseService instance:");
+                            Console.WriteLine($"  Type: {ex.GetType().FullName}");
+                            Console.WriteLine($"  Message: {ex.Message}");
+                            Console.WriteLine($"  StackTrace: {ex.StackTrace}");
+                            throw;
+                        }
                     }
                 }
             }
@@ -34,7 +50,20 @@ public class DatabaseService
 
     public DatabaseService(string dbPath)
     {
-        _database = new DatabaseManager(dbPath);
+        try
+        {
+            Console.WriteLine($"[DEBUG] DatabaseService constructor - creating DatabaseManager for: {dbPath}");
+            _database = new DatabaseManager(dbPath);
+            Console.WriteLine("[DEBUG] DatabaseManager created successfully");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[ERROR] Failed to create DatabaseManager:");
+            Console.WriteLine($"  Type: {ex.GetType().FullName}");
+            Console.WriteLine($"  Message: {ex.Message}");
+            Console.WriteLine($"  StackTrace: {ex.StackTrace}");
+            throw;
+        }
     }
 
     public List<Screenshot> GetScreenshots(DateTime? start = null, DateTime? end = null, string? processName = null, int limit = 100)

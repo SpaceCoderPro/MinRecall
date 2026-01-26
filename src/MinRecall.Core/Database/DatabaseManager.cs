@@ -13,8 +13,23 @@ public class DatabaseManager : IDisposable
 
     public DatabaseManager(string dbPath)
     {
-        _dbPath = dbPath;
-        EnsureDatabaseCreated();
+        try
+        {
+            Console.WriteLine($"[DEBUG] DatabaseManager constructor - path: {dbPath}");
+            _dbPath = dbPath;
+            
+            Console.WriteLine("[DEBUG] Calling EnsureDatabaseCreated...");
+            EnsureDatabaseCreated();
+            Console.WriteLine("[DEBUG] Database created/verified successfully");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[ERROR] DatabaseManager constructor failed:");
+            Console.WriteLine($"  Type: {ex.GetType().FullName}");
+            Console.WriteLine($"  Message: {ex.Message}");
+            Console.WriteLine($"  StackTrace: {ex.StackTrace}");
+            throw;
+        }
     }
 
     public string DatabasePath => _dbPath;
@@ -33,16 +48,30 @@ public class DatabaseManager : IDisposable
 
     private void EnsureDatabaseCreated()
     {
-        var directory = Path.GetDirectoryName(_dbPath);
-        if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+        try
         {
-            Directory.CreateDirectory(directory);
-        }
+            Console.WriteLine("[DEBUG] EnsureDatabaseCreated starting...");
+            
+            var directory = Path.GetDirectoryName(_dbPath);
+            Console.WriteLine($"[DEBUG] Database directory: {directory}");
+            
+            if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+            {
+                Console.WriteLine($"[DEBUG] Creating directory: {directory}");
+                Directory.CreateDirectory(directory);
+                Console.WriteLine("[DEBUG] Directory created successfully");
+            }
+            else
+            {
+                Console.WriteLine("[DEBUG] Directory already exists or is empty");
+            }
 
-        using var connection = new SqliteConnection($"Data Source={_dbPath}");
-        connection.Open();
+            Console.WriteLine($"[DEBUG] Opening SQLite connection to: {_dbPath}");
+            using var connection = new SqliteConnection($"Data Source={_dbPath}");
+            connection.Open();
+            Console.WriteLine("[DEBUG] SQLite connection opened successfully");
 
-        var command = connection.CreateCommand();
+            var command = connection.CreateCommand();
         command.CommandText = @"
             PRAGMA journal_mode = WAL;
             PRAGMA synchronous = NORMAL;
@@ -113,7 +142,18 @@ public class DatabaseManager : IDisposable
                 Value TEXT NOT NULL
             );
         ";
-        command.ExecuteNonQuery();
+            Console.WriteLine("[DEBUG] Executing database schema creation SQL...");
+            command.ExecuteNonQuery();
+            Console.WriteLine("[DEBUG] Database schema created/verified successfully");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[ERROR] EnsureDatabaseCreated failed:");
+            Console.WriteLine($"  Type: {ex.GetType().FullName}");
+            Console.WriteLine($"  Message: {ex.Message}");
+            Console.WriteLine($"  StackTrace: {ex.StackTrace}");
+            throw;
+        }
     }
 
     public long InsertScreenshot(Screenshot screenshot)
@@ -534,21 +574,24 @@ public class DatabaseManager : IDisposable
 
         try
         {
-            using var command = connection.CreateCommand();
-            command.CommandText = @"
-                SELECT Id, FilePath FROM Screenshots
-                WHERE Timestamp < @cutoff
-            ";
-
-            command.Parameters.AddWithValue("@cutoff", cutoffDate.ToFileTimeUtc());
-
+            // First, get list of files to delete
             var filesToDelete = new List<string>();
-            using var reader = command.ExecuteReader();
-            while (reader.Read())
+            using (var command = connection.CreateCommand())
             {
-                var filePath = reader.GetString(1);
-                filesToDelete.Add(filePath);
-            }
+                command.CommandText = @"
+                    SELECT Id, FilePath FROM Screenshots
+                    WHERE Timestamp < @cutoff
+                ";
+
+                command.Parameters.AddWithValue("@cutoff", cutoffDate.ToFileTimeUtc());
+
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var filePath = reader.GetString(1);
+                    filesToDelete.Add(filePath);
+                }
+            } // Command and reader are disposed here
 
             // Delete files
             foreach (var file in filesToDelete)
@@ -566,14 +609,19 @@ public class DatabaseManager : IDisposable
                 }
             }
 
-            // Delete from database
-            command.CommandText = @"
-                DELETE FROM Screenshots WHERE Timestamp < @cutoff;
-                DELETE FROM OcrData WHERE ScreenshotId NOT IN (SELECT Id FROM Screenshots);
-                DELETE FROM DeltaFiles WHERE ScreenshotId NOT IN (SELECT Id FROM Screenshots);
-            ";
+            // Delete from database with a new command
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = @"
+                    DELETE FROM Screenshots WHERE Timestamp < @cutoff;
+                    DELETE FROM OcrData WHERE ScreenshotId NOT IN (SELECT Id FROM Screenshots);
+                    DELETE FROM DeltaFiles WHERE ScreenshotId NOT IN (SELECT Id FROM Screenshots);
+                ";
 
-            command.ExecuteNonQuery();
+                command.Parameters.AddWithValue("@cutoff", cutoffDate.ToFileTimeUtc());
+                command.ExecuteNonQuery();
+            }
+
             transaction.Commit();
         }
         catch

@@ -30,8 +30,48 @@ public partial class TimelineViewModel : ObservableObject
 
     public TimelineViewModel()
     {
-        _database = DatabaseService.Instance;
-        LoadTimelineData();
+        try
+        {
+            Console.WriteLine("[DEBUG] TimelineViewModel constructor starting...");
+            
+            try
+            {
+                Console.WriteLine("[DEBUG] Getting DatabaseService.Instance...");
+                _database = DatabaseService.Instance;
+                Console.WriteLine($"[DEBUG] DatabaseService.Instance obtained, path: {_database.DatabasePath}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] Failed to get DatabaseService.Instance:");
+                Console.WriteLine($"  Type: {ex.GetType().FullName}");
+                Console.WriteLine($"  Message: {ex.Message}");
+                Console.WriteLine($"  StackTrace: {ex.StackTrace}");
+                
+                StatusMessage = $"Database error: {ex.Message}";
+                throw;
+            }
+            
+            try
+            {
+                Console.WriteLine("[DEBUG] Loading timeline data...");
+                LoadTimelineData();
+                Console.WriteLine("[DEBUG] Timeline data loading initiated");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[WARN] Failed to load timeline data: {ex.Message}");
+                StatusMessage = $"Failed to load data: {ex.Message}";
+            }
+            
+            Console.WriteLine("[DEBUG] TimelineViewModel constructor completed");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[ERROR] TimelineViewModel constructor failed:");
+            Console.WriteLine($"  Type: {ex.GetType().FullName}");
+            Console.WriteLine($"  Message: {ex.Message}");
+            throw;
+        }
     }
 
     partial void OnSelectedDateChanged(DateTime value)

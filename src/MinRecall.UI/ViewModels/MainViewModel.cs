@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using MinRecall.Core.Models;
 using System.Collections.ObjectModel;
+using System;
 
 namespace MinRecall.UI.ViewModels;
 
@@ -16,17 +17,54 @@ public partial class MainViewModel : ObservableObject
 
     public MainViewModel()
     {
-        InitializeViewModels();
-        NavigateTo("timeline");
+        try
+        {
+            Console.WriteLine("[DEBUG] MainViewModel constructor starting...");
+            InitializeViewModels();
+            NavigateTo("timeline");
+            Console.WriteLine("[DEBUG] MainViewModel constructor completed");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[ERROR] MainViewModel constructor failed:");
+            Console.WriteLine($"  Type: {ex.GetType().FullName}");
+            Console.WriteLine($"  Message: {ex.Message}");
+            Console.WriteLine($"  StackTrace: {ex.StackTrace}");
+            throw;
+        }
     }
 
     private void InitializeViewModels()
     {
-        _viewModels["timeline"] = new TimelineViewModel();
-        _viewModels["search"] = new SearchViewModel();
-        _viewModels["heatmap"] = new HeatmapViewModel();
-        _viewModels["activity"] = new ActivityViewModel();
-        _viewModels["settings"] = new SettingsViewModel();
+        try
+        {
+            Console.WriteLine("[DEBUG] InitializeViewModels starting...");
+            
+            Console.WriteLine("[DEBUG] Creating TimelineViewModel...");
+            _viewModels["timeline"] = new TimelineViewModel();
+            
+            Console.WriteLine("[DEBUG] Creating SearchViewModel...");
+            _viewModels["search"] = new SearchViewModel();
+            
+            Console.WriteLine("[DEBUG] Creating HeatmapViewModel...");
+            _viewModels["heatmap"] = new HeatmapViewModel();
+            
+            Console.WriteLine("[DEBUG] Creating ActivityViewModel...");
+            _viewModels["activity"] = new ActivityViewModel();
+            
+            Console.WriteLine("[DEBUG] Creating SettingsViewModel...");
+            _viewModels["settings"] = new SettingsViewModel();
+            
+            Console.WriteLine("[DEBUG] All ViewModels initialized successfully");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[ERROR] InitializeViewModels failed:");
+            Console.WriteLine($"  Type: {ex.GetType().FullName}");
+            Console.WriteLine($"  Message: {ex.Message}");
+            Console.WriteLine($"  StackTrace: {ex.StackTrace}");
+            throw;
+        }
     }
 
     public void NavigateTo(string viewName)
@@ -37,7 +75,7 @@ public partial class MainViewModel : ObservableObject
             Title = viewName switch
             {
                 "timeline" => "Timeline - MinRecall",
-                "search" => "Search - MinRecall", 
+                "search" => "Search - MinRecall",
                 "heatmap" => "Activity Heatmap - MinRecall",
                 "activity" => "Activity Log - MinRecall",
                 "settings" => "Settings - MinRecall",

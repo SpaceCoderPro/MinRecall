@@ -56,6 +56,10 @@ public static class WindowCapture
     [return: MarshalAs(UnmanagedType.Bool)]
     private static extern bool DeleteDC(IntPtr hdc);
 
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool IsZoomed(IntPtr hWnd);
+
     #endregion
 
     [StructLayout(LayoutKind.Sequential)]
@@ -123,6 +127,7 @@ public static class WindowCapture
     {
         try
         {
+            // Get window rect
             GetWindowRect(hWnd, out var rect);
             var width = rect.Right - rect.Left;
             var height = rect.Bottom - rect.Top;
@@ -130,22 +135,52 @@ public static class WindowCapture
             if (width <= 0 || height <= 0)
                 return null;
 
-            var hdcSource = GetDC(IntPtr.Zero);
-            var hdcDest = CreateCompatibleDC(hdcSource);
-            var hBitmap = CreateCompatibleBitmap(hdcSource, targetWidth, targetHeight);
-            var hOld = SelectObject(hdcDest, hBitmap);
+            // For fullscreen or maximized windows, capture the entire screen area
+            var isMaximized = IsZoomed(hWnd);
+            
+            // Create bitmap with actual window dimensions
+            var bitmap = new Bitmap(width, height, PixelFormat.Format24bppRgb);
+            using var graphics = Graphics.FromImage(bitmap);
+            
+            // Set high quality rendering
+            graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
+            graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+            graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+            graphics.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
+            
+            var hdc = graphics.GetHdc();
+            try
+            {
+                // Try PrintWindow first (works better for most apps)
+                var result = PrintWindow(hWnd, hdc, 0);
+                
+                // If PrintWindow fails, fallback to BitBlt
+                if (!result)
+                {
+                    var hdcSource = GetDC(IntPtr.Zero);
+                    BitBlt(hdc, 0, 0, width, height, hdcSource, rect.Left, rect.Top, CopyPixelOperation.SRCCOPY);
+                    ReleaseDC(IntPtr.Zero, hdcSource);
+                }
+            }
+            finally
+            {
+                graphics.ReleaseHdc(hdc);
+            }
+            
+            // Resize if needed
+            if (width != targetWidth || height != targetHeight)
+            {
+                var resized = new Bitmap(targetWidth, targetHeight);
+                using var g = Graphics.FromImage(resized);
+                g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
+                g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+                g.DrawImage(bitmap, 0, 0, targetWidth, targetHeight);
+                bitmap.Dispose();
+                return resized;
+            }
 
-            // Capture the window
-            BitBlt(hdcDest, 0, 0, targetWidth, targetHeight, hdcSource, rect.Left, rect.Top, CopyPixelOperation.SRCCOPY);
-
-            SelectObject(hdcDest, hOld);
-            DeleteDC(hdcDest);
-            ReleaseDC(IntPtr.Zero, hdcSource);
-
-            var bitmap = Image.FromHbitmap(hBitmap);
-            DeleteObject(hBitmap);
-
-            return new Bitmap(bitmap);
+            return bitmap;
         }
         catch
         {

@@ -14,30 +14,50 @@ public static class Program
     {
         try
         {
+            Console.WriteLine("==========================================================");
+            Console.WriteLine("MinRecall Application Starting");
+            Console.WriteLine($"Time: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+            Console.WriteLine($"OS: {Environment.OSVersion}");
+            Console.WriteLine($".NET Runtime: {Environment.Version}");
+            Console.WriteLine("==========================================================");
+            Console.WriteLine();
+            
             // Setup unhandled exception handlers
             AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
             {
+                Console.WriteLine("[FATAL] Unhandled exception caught in AppDomain");
                 LogError("Unhandled Exception", e.ExceptionObject as Exception);
+                Console.WriteLine("\nPress any key to exit...");
+                try { Console.ReadKey(); } catch { }
                 Environment.Exit(1);
             };
 
+            Console.WriteLine("[DEBUG] Building Avalonia app...");
             BuildAvaloniaApp()
                 .StartWithClassicDesktopLifetime(args);
+            
+            Console.WriteLine("[DEBUG] Application exited normally");
         }
         catch (Exception ex)
         {
+            Console.WriteLine("\n[FATAL] Application failed to start!");
             LogError("Fatal Error starting application", ex);
             Console.WriteLine("\nPress any key to exit...");
-            Console.ReadKey();
+            try { Console.ReadKey(); } catch { }
             Environment.Exit(1);
         }
     }
 
     // Avalonia configuration, don't remove; also used by visual designer.
     public static AppBuilder BuildAvaloniaApp()
-        => AppBuilder.Configure<App>()
+    {
+        Console.WriteLine("[DEBUG] Configuring Avalonia AppBuilder...");
+        var builder = AppBuilder.Configure<App>()
             .UsePlatformDetect()
             .LogToTrace();
+        Console.WriteLine("[DEBUG] Avalonia AppBuilder configured successfully");
+        return builder;
+    }
 
     private static void LogError(string message, Exception? ex)
     {
