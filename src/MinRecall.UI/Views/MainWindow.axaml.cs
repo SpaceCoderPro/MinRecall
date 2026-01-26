@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using MinRecall.UI.ViewModels;
@@ -11,11 +12,11 @@ public partial class MainWindow : Window
 {
     private readonly MainViewModel? _viewModel;
     private Border? _contentFrame;
-    private StackPanel? _navTimeline;
-    private StackPanel? _navSearch;
-    private StackPanel? _navHeatmap;
-    private StackPanel? _navActivity;
-    private StackPanel? _navSettings;
+    private Button? _navTimeline;
+    private Button? _navSearch;
+    private Button? _navSettings;
+    private TextBlock? _pageTitle;
+    private TextBox? _searchBox;
 
     public MainWindow()
     {
@@ -40,22 +41,18 @@ public partial class MainWindow : Window
                 Console.WriteLine($"  Message: {ex.Message}");
                 Console.WriteLine($"  StackTrace: {ex.StackTrace}");
                 
-                // Show error in window title
                 Title = "MinRecall - Error: Failed to initialize";
-                
-                // Continue anyway - show the window even if ViewModel fails
             }
             
-            // Cache controls for navigation
             try
             {
                 Console.WriteLine("[DEBUG] Caching navigation controls...");
                 _contentFrame = this.FindControl<Border>("ContentFrame");
-                _navTimeline = this.FindControl<StackPanel>("NavTimeline");
-                _navSearch = this.FindControl<StackPanel>("NavSearch");
-                _navHeatmap = this.FindControl<StackPanel>("NavHeatmap");
-                _navActivity = this.FindControl<StackPanel>("NavActivity");
-                _navSettings = this.FindControl<StackPanel>("NavSettings");
+                _navTimeline = this.FindControl<Button>("NavTimeline");
+                _navSearch = this.FindControl<Button>("NavSearch");
+                _navSettings = this.FindControl<Button>("NavSettings");
+                _pageTitle = this.FindControl<TextBlock>("PageTitle");
+                _searchBox = this.FindControl<TextBox>("SearchBox");
                 Console.WriteLine("[DEBUG] Navigation controls cached");
             }
             catch (Exception ex)
@@ -63,7 +60,6 @@ public partial class MainWindow : Window
                 Console.WriteLine($"[WARN] Failed to cache navigation controls: {ex.Message}");
             }
 
-            // Show timeline view by default
             try
             {
                 Console.WriteLine("[DEBUG] Navigating to timeline view...");
@@ -102,16 +98,26 @@ public partial class MainWindow : Window
         AvaloniaXamlLoader.Load(this);
     }
 
-    private void NavItem_PointerPressed(object? sender, Avalonia.Input.PointerPressedEventArgs e)
+    private void NavItem_Click(object? sender, RoutedEventArgs e)
     {
-        if (sender is StackPanel navItem)
+        if (sender is Button button && button.Tag is string tag)
         {
-            var tag = navItem.Tag?.ToString();
-            if (!string.IsNullOrEmpty(tag))
-            {
-                NavigateTo(tag);
-            }
+            NavigateTo(tag);
         }
+    }
+
+    private void SearchBox_KeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Enter && _searchBox?.Text is string query && !string.IsNullOrWhiteSpace(query))
+        {
+            NavigateTo("search");
+            // The search view will handle the query
+        }
+    }
+
+    private void Settings_Click(object? sender, RoutedEventArgs e)
+    {
+        NavigateTo("settings");
     }
 
     private void NavigateTo(string viewName)
@@ -120,7 +126,6 @@ public partial class MainWindow : Window
         {
             Console.WriteLine($"[DEBUG] NavigateTo({viewName}) starting...");
             
-            // Update ViewModel
             if (_viewModel != null)
             {
                 try
@@ -134,29 +139,32 @@ public partial class MainWindow : Window
                     Console.WriteLine($"[ERROR] _viewModel.NavigateTo failed: {ex.Message}");
                 }
             }
-            else
-            {
-                Console.WriteLine("[WARN] _viewModel is null, skipping NavigateTo call");
-            }
 
-            // Update UI - remove active class from all nav items
-            _navTimeline?.Classes.Remove("active");
-            _navSearch?.Classes.Remove("active");
-            _navHeatmap?.Classes.Remove("active");
-            _navActivity?.Classes.Remove("active");
-            _navSettings?.Classes.Remove("active");
+            // Update navigation button states
+            if (_navTimeline != null) _navTimeline.Classes.Remove("active");
+            if (_navSearch != null) _navSearch.Classes.Remove("active");
+            if (_navSettings != null) _navSettings.Classes.Remove("active");
 
-            // Add active class to selected nav item
             var activeNav = viewName switch
             {
                 "timeline" => _navTimeline,
                 "search" => _navSearch,
-                "heatmap" => _navHeatmap,
-                "activity" => _navActivity,
                 "settings" => _navSettings,
                 _ => null
             };
             activeNav?.Classes.Add("active");
+
+            // Update page title
+            if (_pageTitle != null)
+            {
+                _pageTitle.Text = viewName switch
+                {
+                    "timeline" => "Timeline",
+                    "search" => "Search",
+                    "settings" => "Settings",
+                    _ => "MinRecall"
+                };
+            }
 
             // Update content frame
             if (_contentFrame != null && _viewModel != null)
@@ -168,8 +176,6 @@ public partial class MainWindow : Window
                     {
                         "timeline" => new TimelineView { DataContext = _viewModel.CurrentViewModel },
                         "search" => new SearchView { DataContext = _viewModel.CurrentViewModel },
-                        "heatmap" => new HeatmapView { DataContext = _viewModel.CurrentViewModel },
-                        "activity" => new ActivityView { DataContext = _viewModel.CurrentViewModel },
                         "settings" => new SettingsView { DataContext = _viewModel.CurrentViewModel },
                         _ => null
                     };
@@ -181,7 +187,6 @@ public partial class MainWindow : Window
                     Console.WriteLine($"  Message: {ex.Message}");
                     Console.WriteLine($"  StackTrace: {ex.StackTrace}");
                     
-                    // Show error in content frame
                     var errorText = new TextBlock
                     {
                         Text = $"Error loading {viewName} view:\n{ex.Message}",

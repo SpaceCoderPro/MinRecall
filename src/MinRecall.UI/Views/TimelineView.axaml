@@ -1,183 +1,102 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:vm="using:MinRecall.UI.ViewModels"
-             xmlns:models="using:MinRecall.Core.Models"
              x:Class="MinRecall.UI.Views.TimelineView"
-             x:DataType="vm:TimelineViewModel">
-  
-  <Design.DataContext>
-    <vm:TimelineViewModel/>
-  </Design.DataContext>
-  
-  <Grid Background="#0f0f0f">
-    <Grid.RowDefinitions>
-      <RowDefinition Height="Auto"/>
-      <RowDefinition Height="Auto"/>
-      <RowDefinition Height="*"/>
-    </Grid.RowDefinitions>
+             Background="Transparent">
     
-    <!-- Header -->
-    <StackPanel Grid.Row="0" Margin="32,24,32,20">
-      <TextBlock Text="Timeline" FontSize="28" FontWeight="Bold" Foreground="#ffffff" 
-                 Margin="0,0,0,8"/>
-      <TextBlock Text="Browse your screenshot history in chronological order" 
-                 FontSize="14" Foreground="#888888"/>
-    </StackPanel>
-    
-    <!-- Controls -->
-    <Grid Grid.Row="1" Margin="32,0,32,24">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="Auto"/>
-        <ColumnDefinition Width="*"/>
-        <ColumnDefinition Width="Auto"/>
-      </Grid.ColumnDefinitions>
-      
-      <!-- Date Selector -->
-      <StackPanel Grid.Column="0" Orientation="Horizontal">
-        <Border Background="#1a1a1a" CornerRadius="12" Padding="16,8" 
-                BorderBrush="#2a2a2a" BorderThickness="1">
-          <StackPanel Orientation="Horizontal">
-            <TextBlock Text="📅" FontSize="16" Foreground="#888888" 
-                       VerticalAlignment="Center" Margin="0,0,8,0"/>
-            <DatePicker SelectedDate="{Binding SelectedDate}" 
-                       Foreground="#ffffff" Background="Transparent" BorderThickness="0"/>
-          </StackPanel>
-        </Border>
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
         
-        <!-- View Mode Selector -->
-        <Border Background="#1a1a1a" CornerRadius="12" Padding="16,8" 
-                BorderBrush="#2a2a2a" BorderThickness="1" Margin="16,0,0,0">
-          <StackPanel Orientation="Horizontal">
-            <TextBlock Text="🔄" FontSize="16" Foreground="#888888" 
-                       VerticalAlignment="Center" Margin="0,0,8,0"/>
-            <ComboBox SelectedItem="{Binding ViewMode}" Background="Transparent" 
-                      BorderThickness="0" Foreground="#ffffff">
-              <ComboBoxItem Content="Hourly" Tag="hourly"/>
-              <ComboBoxItem Content="Daily" Tag="daily"/>
-              <ComboBoxItem Content="Weekly" Tag="weekly"/>
-            </ComboBox>
-          </StackPanel>
-        </Border>
-      </StackPanel>
-      
-      <!-- Search Stats -->
-      <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="12">
-        <Border Background="#1a1a1a" CornerRadius="12" Padding="16,8" 
-                BorderBrush="#2a2a2a" BorderThickness="1">
-          <StackPanel>
-            <TextBlock Text="{Binding TimelineItems.Count}" FontSize="18" 
-                       FontWeight="Bold" Foreground="#00d9ff" HorizontalAlignment="Center"/>
-            <TextBlock Text="Screenshots" FontSize="11" Foreground="#888888" 
-                       HorizontalAlignment="Center"/>
-          </StackPanel>
-        </Border>
-      </StackPanel>
+        <!-- Date Picker -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12" Margin="0,0,0,20">
+            <CalendarDatePicker x:Name="DatePicker" 
+                               SelectedDate="{Binding SelectedDate}" 
+                               Background="#1A1A1A"
+                               BorderBrush="#2A2A2A"
+                               Foreground="#E0E0E0"/>
+            <TextBlock Text="{Binding StatusMessage}" 
+                      Foreground="#888" 
+                      VerticalAlignment="Center"
+                      FontSize="13"/>
+        </StackPanel>
+        
+        <!-- Screenshots Grid -->
+        <ScrollViewer Grid.Row="1" 
+                     HorizontalScrollBarVisibility="Disabled" 
+                     VerticalScrollBarVisibility="Auto">
+            <ItemsControl x:Name="ScreenshotGrid" ItemsSource="{Binding TimelineItems}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Background="#111" 
+                               CornerRadius="8" 
+                               Margin="8"
+                               Width="280"
+                               Height="180"
+                               Cursor="Hand"
+                               Classes="screenshot-card">
+                            <Border.Styles>
+                                <Style Selector="Border.screenshot-card:pointerover">
+                                    <Setter Property="Background" Value="#1A1A1A"/>
+                                </Style>
+                            </Border.Styles>
+                            
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                
+                                <!-- Screenshot Image -->
+                                <Border Grid.Row="0" Background="#0A0A0A" CornerRadius="8,8,0,0" ClipToBounds="True">
+                                    <Image Source="{Binding FilePath}" 
+                                          Stretch="UniformToFill"/>
+                                </Border>
+                                
+                                <!-- Info -->
+                                <StackPanel Grid.Row="1" Margin="12" Spacing="4">
+                                    <TextBlock Text="{Binding Timestamp, StringFormat='{}{0:HH:mm:ss}'}" 
+                                              FontSize="12" 
+                                              Foreground="#00D9FF"
+                                              FontWeight="Medium"/>
+                                    <TextBlock Text="{Binding WindowTitle}" 
+                                              FontSize="11" 
+                                              Foreground="#888"
+                                              TextTrimming="CharacterEllipsis"
+                                              MaxLines="1"/>
+                                    <TextBlock Text="{Binding ProcessName}" 
+                                              FontSize="10" 
+                                              Foreground="#666"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+        
+        <!-- Empty State -->
+        <StackPanel Grid.Row="1" 
+                   VerticalAlignment="Center" 
+                   HorizontalAlignment="Center"
+                   Spacing="12"
+                   IsVisible="{Binding !TimelineItems.Count}">
+            <TextBlock Text="📷" FontSize="48" HorizontalAlignment="Center"/>
+            <TextBlock Text="No screenshots yet" 
+                      FontSize="16" 
+                      Foreground="#888"
+                      HorizontalAlignment="Center"/>
+            <TextBlock Text="Screenshots will appear here once the capture service is running" 
+                      FontSize="12" 
+                      Foreground="#666"
+                      HorizontalAlignment="Center"/>
+        </StackPanel>
     </Grid>
-    
-    <!-- Timeline Content -->
-    <ScrollViewer Grid.Row="2" Margin="32,0,32,32">
-      <ItemsControl ItemsSource="{Binding TimelineItems}">
-        <ItemsControl.ItemsPanel>
-          <ItemsPanelTemplate>
-            <StackPanel Orientation="Vertical" Spacing="12"/>
-          </ItemsPanelTemplate>
-        </ItemsControl.ItemsPanel>
-        
-        <ItemsControl.ItemTemplate>
-          <DataTemplate>
-            <Border Background="#1a1a1a" CornerRadius="16" Padding="20" 
-                    BorderBrush="#2a2a2a" BorderThickness="1">
-              <Grid>
-                <Grid.ColumnDefinitions>
-                  <ColumnDefinition Width="320"/>
-                  <ColumnDefinition Width="*"/>
-                  <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                
-                <!-- Screenshot Thumbnail -->
-                <Border Grid.Column="0" Width="320" Height="180" CornerRadius="12" 
-                        Background="#2a2a2a">
-                  <Grid>
-                    <Rectangle Fill="#2a2a2a" />
-                    <TextBlock Text="🖼️" FontSize="48" Foreground="#666666" 
-                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    <Border Background="#00d9ff" CornerRadius="8" Padding="8,4" 
-                            HorizontalAlignment="Left" VerticalAlignment="Top" 
-                            Margin="12,12">
-                      <TextBlock Text="{Binding Status}" FontSize="10" 
-                                 FontWeight="Bold" Foreground="#0f0f0f"/>
-                    </Border>
-                  </Grid>
-                </Border>
-                
-                <!-- Content -->
-                <StackPanel Grid.Column="1" Margin="24,0,0,0" VerticalAlignment="Center">
-                  <TextBlock Text="{Binding Timestamp, StringFormat='{}{0:HH:mm}'}" 
-                             FontSize="16" FontWeight="Bold" Foreground="#ffffff" 
-                             Margin="0,0,0,4"/>
-                  <TextBlock Text="{Binding ProcessName}" FontSize="14" 
-                             Foreground="#00d9ff" FontWeight="Medium" Margin="0,0,0,8"/>
-                  <TextBlock Text="{Binding WindowTitle}" FontSize="13" 
-                             Foreground="#cccccc" TextWrapping="Wrap" MaxLines="2"/>
-                  
-                  <!-- Metadata -->
-                  <StackPanel Orientation="Horizontal" Margin="0,12,0,0" Spacing="16">
-                    <StackPanel Orientation="Horizontal" Spacing="4">
-                      <TextBlock Text="📊" FontSize="14" Foreground="#888888"/>
-                      <TextBlock Text="{Binding FileSize, StringFormat='{}{0}KB'}" 
-                                 FontSize="12" Foreground="#888888"/>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" Spacing="4">
-                      <TextBlock Text="📐" FontSize="14" Foreground="#888888"/>
-                      <TextBlock Text="{Binding Width, StringFormat='{}{0}x{1}'}" 
-                                 FontSize="12" Foreground="#888888"/>
-                    </StackPanel>
-                  </StackPanel>
-                </StackPanel>
-                
-                <!-- Actions -->
-                <StackPanel Grid.Column="2" VerticalAlignment="Center" Spacing="8">
-                  <Button Background="Transparent" BorderThickness="0" Padding="12" 
-                          CornerRadius="8" Classes="icon-button">
-                    <TextBlock Text="🔍" FontSize="20" Foreground="#888888"/>
-                  </Button>
-                  <Button Background="Transparent" BorderThickness="0" Padding="12" 
-                          CornerRadius="8" Classes="icon-button">
-                    <TextBlock Text="⬇️" FontSize="20" Foreground="#888888"/>
-                  </Button>
-                  <Button Background="Transparent" BorderThickness="0" Padding="12" 
-                          CornerRadius="8" Classes="icon-button">
-                    <TextBlock Text="⚙️" FontSize="20" Foreground="#888888"/>
-                  </Button>
-                </StackPanel>
-              </Grid>
-            </Border>
-          </DataTemplate>
-        </ItemsControl.ItemTemplate>
-      </ItemsControl>
-    </ScrollViewer>
-    
-    <!-- Loading State -->
-    <Border Grid.RowSpan="3" Background="#0f0f0f" IsVisible="{Binding IsLoading}">
-      <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-        <Border Width="200" Height="4" Background="#2a2a2a" CornerRadius="2" 
-                Margin="0,0,0,16">
-          <Border Width="100" Height="4" Background="#00d9ff" CornerRadius="2"/>
-        </Border>
-        <TextBlock Text="Loading timeline..." 
-                   Foreground="#888888" HorizontalAlignment="Center"/>
-      </StackPanel>
-    </Border>
-  </Grid>
-  
-  <UserControl.Styles>
-    <Style Selector="Button.icon-button">
-      <Setter Property="Background" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="Cursor" Value="Hand"/>
-    </Style>
-    <Style Selector="Button.icon-button:pointerover">
-      <Setter Property="Background" Value="#2a2a2a"/>
-    </Style>
-  </UserControl.Styles>
 </UserControl>

@@ -46,12 +46,6 @@ public partial class MainViewModel : ObservableObject
             Console.WriteLine("[DEBUG] Creating SearchViewModel...");
             _viewModels["search"] = new SearchViewModel();
             
-            Console.WriteLine("[DEBUG] Creating HeatmapViewModel...");
-            _viewModels["heatmap"] = new HeatmapViewModel();
-            
-            Console.WriteLine("[DEBUG] Creating ActivityViewModel...");
-            _viewModels["activity"] = new ActivityViewModel();
-            
             Console.WriteLine("[DEBUG] Creating SettingsViewModel...");
             _viewModels["settings"] = new SettingsViewModel();
             
@@ -76,8 +70,6 @@ public partial class MainViewModel : ObservableObject
             {
                 "timeline" => "Timeline - MinRecall",
                 "search" => "Search - MinRecall", 
-                "heatmap" => "Activity Heatmap - MinRecall",
-                "activity" => "Activity Log - MinRecall",
                 "settings" => "Settings - MinRecall",
                 _ => "MinRecall"
             };
