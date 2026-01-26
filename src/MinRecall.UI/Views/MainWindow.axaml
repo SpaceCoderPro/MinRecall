@@ -2,78 +2,167 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="MinRecall.UI.Views.MainWindow"
         Title="MinRecall"
-        Background="#0A0A0A"
-        Foreground="#E0E0E0"
+        Background="#000000"
+        Foreground="#FFFFFF"
         WindowStartupLocation="CenterScreen"
+        Width="1400"
+        Height="900"
         MinWidth="1200"
-        MinHeight="700"
-        TransparencyLevelHint="Blur">
+        MinHeight="700">
     
     <Window.Styles>
+        <!-- Global Text Style -->
         <Style Selector="TextBlock">
-            <Setter Property="Foreground" Value="#E0E0E0"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
         </Style>
         
+        <!-- Navigation Button Style -->
         <Style Selector="Button.nav-btn">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="16,10"/>
+            <Setter Property="Padding" Value="20,12"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
             <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="CornerRadius" Value="8"/>
-            <Setter Property="Foreground" Value="#888"/>
+            <Setter Property="Foreground" Value="#666"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Transitions">
+                <Transitions>
+                    <DoubleTransition Property="Opacity" Duration="0:0:0.2"/>
+                </Transitions>
+            </Setter>
         </Style>
         
         <Style Selector="Button.nav-btn:pointerover">
-            <Setter Property="Background" Value="#1A1A1A"/>
             <Setter Property="Foreground" Value="#FFF"/>
+            <Setter Property="Opacity" Value="0.8"/>
         </Style>
         
         <Style Selector="Button.nav-btn.active">
-            <Setter Property="Background" Value="#2A2A2A"/>
-            <Setter Property="Foreground" Value="#00D9FF"/>
+            <Setter Property="Foreground" Value="#00E5FF"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Opacity" Value="1"/>
         </Style>
         
-        <Style Selector="TextBox.search">
-            <Setter Property="Background" Value="#1A1A1A"/>
-            <Setter Property="BorderBrush" Value="#2A2A2A"/>
+        <!-- Card Style -->
+        <Style Selector="Border.card">
+            <Setter Property="Background" Value="#0A0A0A"/>
+            <Setter Property="BorderBrush" Value="#1A1A1A"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Foreground" Value="#E0E0E0"/>
-            <Setter Property="Padding" Value="12,8"/>
-            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Transitions">
+                <Transitions>
+                    <DoubleTransition Property="Opacity" Duration="0:0:0.15"/>
+                    <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.15"/>
+                </Transitions>
+            </Setter>
         </Style>
         
-        <Style Selector="TextBox.search:focus">
-            <Setter Property="BorderBrush" Value="#00D9FF"/>
+        <Style Selector="Border.card:pointerover">
+            <Setter Property="Background" Value="#111"/>
+            <Setter Property="BorderBrush" Value="#00E5FF"/>
+            <Setter Property="RenderTransform" Value="scale(1.02)"/>
+        </Style>
+        
+        <!-- Search Box Style -->
+        <Style Selector="TextBox.search-box">
+            <Setter Property="Background" Value="#0A0A0A"/>
+            <Setter Property="BorderBrush" Value="#1A1A1A"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Foreground" Value="#FFF"/>
+            <Setter Property="Padding" Value="14,10"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="FontSize" Value="14"/>
+        </Style>
+        
+        <Style Selector="TextBox.search-box:focus">
+            <Setter Property="BorderBrush" Value="#00E5FF"/>
         </Style>
     </Window.Styles>
     
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="200"/>
+            <ColumnDefinition Width="240"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         
         <!-- Sidebar -->
-        <Border Grid.Column="0" Background="#0D0D0D" BorderBrush="#1A1A1A" BorderThickness="0,0,1,0">
-            <StackPanel Margin="0,20">
+        <Border Grid.Column="0" 
+                Background="#050505" 
+                BorderBrush="#0A0A0A" 
+                BorderThickness="0,0,1,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                
                 <!-- Logo -->
-                <StackPanel Margin="20,0,20,30">
+                <StackPanel Grid.Row="0" Margin="24,30,24,40">
                     <TextBlock Text="MinRecall" 
-                              FontSize="20" 
+                              FontSize="26" 
                               FontWeight="Bold" 
-                              Foreground="#00D9FF"/>
-                    <TextBlock Text="Screenshot Search" 
+                              Foreground="#00E5FF"
+                              LetterSpacing="1"/>
+                    <TextBlock Text="AI Screenshot Search" 
                               FontSize="11" 
-                              Foreground="#555" 
-                              Margin="0,2,0,0"/>
+                              Foreground="#444"
+                              Margin="0,4,0,0"
+                              LetterSpacing="0.5"/>
                 </StackPanel>
                 
                 <!-- Navigation -->
-                <Button x:Name="NavTimeline" Classes="nav-btn active" Content="Timeline" Click="NavItem_Click" Tag="timeline" Margin="10,2"/>
-                <Button x:Name="NavSearch" Classes="nav-btn" Content="Search" Click="NavItem_Click" Tag="search" Margin="10,2"/>
-                <Button x:Name="NavSettings" Classes="nav-btn" Content="Settings" Click="NavItem_Click" Tag="settings" Margin="10,2"/>
-            </StackPanel>
+                <StackPanel Grid.Row="1" Margin="8,0">
+                    <Button x:Name="NavTimeline" 
+                           Classes="nav-btn active" 
+                           Content="📸  Timeline" 
+                           Click="NavItem_Click" 
+                           Tag="timeline"/>
+                    <Button x:Name="NavSearch" 
+                           Classes="nav-btn" 
+                           Content="🔍  Search" 
+                           Click="NavItem_Click" 
+                           Tag="search"/>
+                    <Button x:Name="NavHeatmap" 
+                           Classes="nav-btn" 
+                           Content="📊  Heatmap" 
+                           Click="NavItem_Click" 
+                           Tag="heatmap"/>
+                    <Button x:Name="NavActivity" 
+                           Classes="nav-btn" 
+                           Content="📈  Activity" 
+                           Click="NavItem_Click" 
+                           Tag="activity"/>
+                    <Separator Margin="12,16" Background="#1A1A1A" Height="1"/>
+                    <Button x:Name="NavSettings" 
+                           Classes="nav-btn" 
+                           Content="⚙️  Settings" 
+                           Click="NavItem_Click" 
+                           Tag="settings"/>
+                </StackPanel>
+                
+                <!-- Status -->
+                <Border Grid.Row="2" 
+                       Background="#0A0A0A" 
+                       CornerRadius="8" 
+                       Margin="16"
+                       Padding="12">
+                    <StackPanel Spacing="6">
+                        <TextBlock x:Name="StatusText" 
+                                  Text="Service Status" 
+                                  FontSize="11" 
+                                  Foreground="#666"/>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Ellipse Width="8" Height="8" Fill="#00FF88" x:Name="CaptureStatus"/>
+                            <TextBlock Text="Capture" FontSize="11" Foreground="#AAA"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Ellipse Width="8" Height="8" Fill="#00FF88" x:Name="OptimizerStatus"/>
+                            <TextBlock Text="Optimizer" FontSize="11" Foreground="#AAA"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </Grid>
         </Border>
         
         <!-- Main Content -->
@@ -84,38 +173,56 @@
             </Grid.RowDefinitions>
             
             <!-- Top Bar -->
-            <Border Grid.Row="0" Background="#0D0D0D" BorderBrush="#1A1A1A" BorderThickness="0,0,0,1" Padding="24,16">
+            <Border Grid.Row="0" 
+                   Background="#050505" 
+                   BorderBrush="#0A0A0A" 
+                   BorderThickness="0,0,0,1" 
+                   Padding="32,20">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     
-                    <TextBlock x:Name="PageTitle" 
-                              Text="Timeline" 
-                              FontSize="18" 
-                              FontWeight="SemiBold" 
-                              Foreground="#E0E0E0"
-                              VerticalAlignment="Center"/>
+                    <StackPanel Grid.Column="0" Spacing="8">
+                        <TextBlock x:Name="PageTitle" 
+                                  Text="Timeline" 
+                                  FontSize="24" 
+                                  FontWeight="SemiBold" 
+                                  Foreground="#FFF"/>
+                        <TextBlock x:Name="PageSubtitle" 
+                                  Text="View your captured screenshots" 
+                                  FontSize="13" 
+                                  Foreground="#666"/>
+                    </StackPanel>
                     
-                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                    <StackPanel Grid.Column="1" 
+                               Orientation="Horizontal" 
+                               Spacing="12"
+                               VerticalAlignment="Center">
                         <TextBox x:Name="SearchBox" 
-                                Classes="search" 
+                                Classes="search-box" 
                                 Watermark="Search screenshots..." 
-                                Width="300"
+                                Width="350"
                                 KeyDown="SearchBox_KeyDown"/>
-                        <Button Content="⚙" 
-                               FontSize="16" 
-                               Classes="nav-btn" 
-                               Width="40" 
-                               Height="40"
-                               Click="Settings_Click"/>
+                        <Button Content="🔍" 
+                               Background="#00E5FF"
+                               Foreground="#000"
+                               BorderThickness="0"
+                               Width="44" 
+                               Height="44"
+                               CornerRadius="10"
+                               FontSize="16"
+                               Cursor="Hand"
+                               Click="Search_Click"/>
                     </StackPanel>
                 </Grid>
             </Border>
             
             <!-- Content Area -->
-            <Border x:Name="ContentFrame" Grid.Row="1" Background="#0A0A0A">
+            <Border x:Name="ContentFrame" 
+                   Grid.Row="1" 
+                   Background="#000">
                 <!-- Dynamic content loaded here -->
             </Border>
         </Grid>

@@ -3,23 +3,24 @@
              x:Class="MinRecall.UI.Views.TimelineView"
              Background="Transparent">
     
-    <Grid Margin="24">
+    <Grid Margin="32">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         
         <!-- Date Picker -->
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12" Margin="0,0,0,20">
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="16" Margin="0,0,0,24">
             <CalendarDatePicker x:Name="DatePicker" 
                                SelectedDate="{Binding SelectedDate}" 
-                               Background="#1A1A1A"
-                               BorderBrush="#2A2A2A"
-                               Foreground="#E0E0E0"/>
+                               Background="#0A0A0A"
+                               BorderBrush="#1A1A1A"
+                               Foreground="#FFF"
+                               CornerRadius="8"/>
             <TextBlock Text="{Binding StatusMessage}" 
-                      Foreground="#888" 
-                      VerticalAlignment="Center"
-                      FontSize="13"/>
+                      Foreground="#666" 
+                      FontSize="13"
+                      VerticalAlignment="Center"/>
         </StackPanel>
         
         <!-- Screenshots Grid -->
@@ -35,16 +36,27 @@
                 
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Border Background="#111" 
-                               CornerRadius="8" 
+                        <Border Background="#0A0A0A" 
+                               BorderBrush="#1A1A1A"
+                               BorderThickness="1"
+                               CornerRadius="12" 
                                Margin="8"
-                               Width="280"
-                               Height="180"
+                               Width="320"
+                               Height="240"
                                Cursor="Hand"
                                Classes="screenshot-card">
                             <Border.Styles>
+                                <Style Selector="Border.screenshot-card">
+                                    <Setter Property="Transitions">
+                                        <Transitions>
+                                            <DoubleTransition Property="Opacity" Duration="0:0:0.15"/>
+                                            <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.15"/>
+                                        </Transitions>
+                                    </Setter>
+                                </Style>
                                 <Style Selector="Border.screenshot-card:pointerover">
-                                    <Setter Property="Background" Value="#1A1A1A"/>
+                                    <Setter Property="BorderBrush" Value="#00E5FF"/>
+                                    <Setter Property="RenderTransform" Value="scale(1.02)"/>
                                 </Style>
                             </Border.Styles>
                             
@@ -55,24 +67,36 @@
                                 </Grid.RowDefinitions>
                                 
                                 <!-- Screenshot Image -->
-                                <Border Grid.Row="0" Background="#0A0A0A" CornerRadius="8,8,0,0" ClipToBounds="True">
-                                    <Image Source="{Binding FilePath}" 
-                                          Stretch="UniformToFill"/>
+                                <Border Grid.Row="0" Background="#000" CornerRadius="12,12,0,0" ClipToBounds="True">
+                                    <Panel>
+                                        <!-- Image -->
+                                        <Image Source="{Binding FilePath}" 
+                                              Stretch="UniformToFill"
+                                              IsVisible="{Binding !!FilePath}"/>
+                                        
+                                        <!-- Placeholder if no image -->
+                                        <TextBlock Text="📷" 
+                                                  FontSize="48" 
+                                                  HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"
+                                                  Foreground="#333"
+                                                  IsVisible="{Binding !FilePath}"/>
+                                    </Panel>
                                 </Border>
                                 
                                 <!-- Info -->
-                                <StackPanel Grid.Row="1" Margin="12" Spacing="4">
+                                <StackPanel Grid.Row="1" Margin="12,10" Spacing="4">
                                     <TextBlock Text="{Binding Timestamp, StringFormat='{}{0:HH:mm:ss}'}" 
-                                              FontSize="12" 
-                                              Foreground="#00D9FF"
-                                              FontWeight="Medium"/>
+                                              FontSize="14" 
+                                              Foreground="#00E5FF"
+                                              FontWeight="SemiBold"/>
                                     <TextBlock Text="{Binding WindowTitle}" 
-                                              FontSize="11" 
-                                              Foreground="#888"
+                                              FontSize="12" 
+                                              Foreground="#AAA"
                                               TextTrimming="CharacterEllipsis"
                                               MaxLines="1"/>
                                     <TextBlock Text="{Binding ProcessName}" 
-                                              FontSize="10" 
+                                              FontSize="11" 
                                               Foreground="#666"/>
                                 </StackPanel>
                             </Grid>
@@ -86,17 +110,28 @@
         <StackPanel Grid.Row="1" 
                    VerticalAlignment="Center" 
                    HorizontalAlignment="Center"
-                   Spacing="12"
+                   Spacing="16"
                    IsVisible="{Binding !TimelineItems.Count}">
-            <TextBlock Text="📷" FontSize="48" HorizontalAlignment="Center"/>
+            <TextBlock Text="📸" FontSize="64" HorizontalAlignment="Center" Opacity="0.3"/>
             <TextBlock Text="No screenshots yet" 
-                      FontSize="16" 
-                      Foreground="#888"
-                      HorizontalAlignment="Center"/>
-            <TextBlock Text="Screenshots will appear here once the capture service is running" 
-                      FontSize="12" 
+                      FontSize="18" 
                       Foreground="#666"
+                      HorizontalAlignment="Center"
+                      FontWeight="Medium"/>
+            <TextBlock Text="Start the capture service to begin recording" 
+                      FontSize="13" 
+                      Foreground="#444"
                       HorizontalAlignment="Center"/>
+            <Button Content="Open Settings" 
+                   Background="#00E5FF"
+                   Foreground="#000"
+                   BorderThickness="0"
+                   Padding="16,8"
+                   CornerRadius="8"
+                   FontSize="13"
+                   Cursor="Hand"
+                   HorizontalAlignment="Center"
+                   Margin="0,8,0,0"/>
         </StackPanel>
     </Grid>
 </UserControl>
