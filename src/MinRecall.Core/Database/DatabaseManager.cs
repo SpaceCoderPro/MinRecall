@@ -574,21 +574,24 @@ public class DatabaseManager : IDisposable
 
         try
         {
-            using var command = connection.CreateCommand();
-            command.CommandText = @"
-                SELECT Id, FilePath FROM Screenshots
-                WHERE Timestamp < @cutoff
-            ";
-
-            command.Parameters.AddWithValue("@cutoff", cutoffDate.ToFileTimeUtc());
-
+            // First, get list of files to delete
             var filesToDelete = new List<string>();
-            using var reader = command.ExecuteReader();
-            while (reader.Read())
+            using (var command = connection.CreateCommand())
             {
-                var filePath = reader.GetString(1);
-                filesToDelete.Add(filePath);
-            }
+                command.CommandText = @"
+                    SELECT Id, FilePath FROM Screenshots
+                    WHERE Timestamp < @cutoff
+                ";
+
+                command.Parameters.AddWithValue("@cutoff", cutoffDate.ToFileTimeUtc());
+
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var filePath = reader.GetString(1);
+                    filesToDelete.Add(filePath);
+                }
+            } // Command and reader are disposed here
 
             // Delete files
             foreach (var file in filesToDelete)
@@ -606,14 +609,19 @@ public class DatabaseManager : IDisposable
                 }
             }
 
-            // Delete from database
-            command.CommandText = @"
-                DELETE FROM Screenshots WHERE Timestamp < @cutoff;
-                DELETE FROM OcrData WHERE ScreenshotId NOT IN (SELECT Id FROM Screenshots);
-                DELETE FROM DeltaFiles WHERE ScreenshotId NOT IN (SELECT Id FROM Screenshots);
-            ";
+            // Delete from database with a new command
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = @"
+                    DELETE FROM Screenshots WHERE Timestamp < @cutoff;
+                    DELETE FROM OcrData WHERE ScreenshotId NOT IN (SELECT Id FROM Screenshots);
+                    DELETE FROM DeltaFiles WHERE ScreenshotId NOT IN (SELECT Id FROM Screenshots);
+                ";
 
-            command.ExecuteNonQuery();
+                command.Parameters.AddWithValue("@cutoff", cutoffDate.ToFileTimeUtc());
+                command.ExecuteNonQuery();
+            }
+
             transaction.Commit();
         }
         catch

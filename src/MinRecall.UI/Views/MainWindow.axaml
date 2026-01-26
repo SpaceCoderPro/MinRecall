@@ -1,7 +1,6 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="MinRecall.UI.Views.MainWindow"
-        Icon="/Assets/Images/icon.ico"
         Title="MinRecall - AI-Powered Screenshot Recall"
         Background="#0f0f0f"
         Foreground="#ffffff"
